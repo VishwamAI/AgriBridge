@@ -1,10 +1,10 @@
-# AgriBridge
+# Growers' Gate
 
-AgriBridge is a platform connecting farmers directly with consumers, built using React and bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Growers' Gate is a platform connecting farmers directly with consumers, built using React and bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Project Overview
 
-AgriBridge aims to revolutionize the agricultural supply chain by:
+Growers' Gate aims to revolutionize the agricultural supply chain by:
 - Providing farmers with a direct channel to sell their produce
 - Offering consumers access to fresh, locally-sourced products
 - Reducing food waste and transportation costs
@@ -12,12 +12,12 @@ AgriBridge aims to revolutionize the agricultural supply chain by:
 
 ## Getting Started
 
-To get started with the AgriBridge project, follow these steps:
+To get started with the Growers' Gate project, follow these steps:
 
 1. Clone the repository:
    ```
-   git clone https://github.com/your-username/AgriBridge.git
-   cd AgriBridge
+   git clone https://github.com/your-username/Growers-Gate.git
+   cd Growers-Gate
    ```
 
 2. Install dependencies:
@@ -67,11 +67,11 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 
 ## Deployment
 
-To deploy the AgriBridge frontend on Netlify, follow these steps:
+To deploy the Growers' Gate frontend on Netlify, follow these steps:
 
 1. Create a Netlify account at [https://www.netlify.com/](https://www.netlify.com/)
 2. Connect your GitHub account to Netlify
-3. Choose the AgriBridge repository for deployment
+3. Choose the Growers' Gate repository for deployment
 4. Configure the build settings:
    - Build command: `npm run build`
    - Publish directory: `build`
@@ -81,7 +81,7 @@ Netlify will automatically build and deploy your site whenever you push changes 
 
 ## Usage
 
-Once you've accessed the AgriBridge platform, you can:
+Once you've accessed the Growers' Gate platform, you can:
 
 1. Browse available products on the home page
 2. Use the search function to find specific items
@@ -104,7 +104,7 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 
 ## Contributing
 
-We welcome contributions to the AgriBridge project. Please read our contributing guidelines before submitting pull requests.
+We welcome contributions to the Growers' Gate project. Please read our contributing guidelines before submitting pull requests.
 
 ## License
 
@@ -112,10 +112,10 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Project Structure
 
-The AgriBridge project is organized as follows:
+The Growers' Gate project is organized as follows:
 
 ```
-agribridge/
+growers-gate/
 ├── public/
 │   ├── index.html
 │   └── favicon.ico

@@ -6,7 +6,7 @@ const Footer = () => {
     <Box bg="gray.100" py={4}>
       <Container maxW="container.xl">
         <Flex justifyContent="space-between" alignItems="center">
-          <Text>&copy; 2023 AgriBridge. All rights reserved.</Text>
+          <Text>&copy; 2023 Growers' Gate. All rights reserved.</Text>
           <Flex>
             {/* Placeholder for footer links */}
             <Link href="#" mr={4}>About Us</Link>
