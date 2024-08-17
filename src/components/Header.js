@@ -5,7 +5,7 @@ const Header = () => {
   return (
     <Box bg="green.500" py={4}>
       <Flex maxW="container.xl" mx="auto" align="center">
-        <Heading color="white">AgriBridge</Heading>
+        <Heading color="white">Growers' Gate</Heading>
         <Spacer />
         <Box>
           {/* Placeholder for navigation links */}
