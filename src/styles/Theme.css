@@ -1,0 +1,71 @@
+:root {
+  /* Color Scheme */
+  --primary-color: #4CAF50;
+  --secondary-color: #FFC107;
+  --text-color: #333333;
+  --background-color: #FFFFFF;
+  --error-color: #FF5252;
+  --success-color: #4CAF50;
+
+  /* Typography */
+  --font-family: 'Roboto', sans-serif;
+  --font-size-small: 14px;
+  --font-size-medium: 16px;
+  --font-size-large: 18px;
+  --font-size-xlarge: 24px;
+
+  /* Spacing */
+  --spacing-small: 8px;
+  --spacing-medium: 16px;
+  --spacing-large: 24px;
+
+  /* Border Radius */
+  --border-radius: 4px;
+
+  /* Box Shadow */
+  --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark Mode */
+.dark-mode {
+  --text-color: #FFFFFF;
+  --background-color: #333333;
+}
+
+/* Component-specific styles */
+.button {
+  background-color: var(--primary-color);
+  color: #FFFFFF;
+  padding: var(--spacing-small) var(--spacing-medium);
+  border-radius: var(--border-radius);
+  font-family: var(--font-family);
+  font-size: var(--font-size-medium);
+}
+
+.input {
+  border: 1px solid var(--text-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-small);
+  font-family: var(--font-family);
+  font-size: var(--font-size-medium);
+}
+
+.card {
+  background-color: var(--background-color);
+  box-shadow: var(--box-shadow);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-medium);
+}
+
+.header {
+  background-color: var(--primary-color);
+  color: #FFFFFF;
+  padding: var(--spacing-medium);
+}
+
+.footer {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  padding: var(--spacing-medium);
+  text-align: center;
+}
