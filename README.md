@@ -16,7 +16,7 @@ To get started with the Growers' Gate project, follow these steps:
 
 1. Clone the repository:
    ```
-   git clone https://github.com/your-username/Growers-Gate.git
+   git clone https://github.com/VishwamAI/Growers-Gate
    cd Growers-Gate
    ```
 
