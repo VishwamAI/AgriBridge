@@ -114,39 +114,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 The Growers' Gate project is organized as follows:
 
-```
-growers-gate/
-├── public/
-│   ├── index.html
-│   └── favicon.ico
-├── src/
-│   ├── components/
-│   │   ├── Header.js
-│   │   └── Footer.js
-│   ├── pages/
-│   │   ├── HomePage.js
-│   │   ├── ProductPage.js
-│   │   └── LoginPage.js
-│   ├── services/
-│   │   ├── api.js
-│   │   ├── authService.js
-│   │   └── productService.js
-│   ├── utils/
-│   │   ├── formatDate.js
-│   │   └── calculatePrice.js
-│   ├── context/
-│   │   ├── AppContext.js
-│   │   └── AuthContext.js
-│   ├── hooks/
-│   │   ├── useAuth.js
-│   │   └── useProducts.js
-│   ├── styles/
-│   │   ├── App.css
-│   │   └── Theme.css
-│   └── App.js
-├── package.json
-├── README.md
-└── tailwind.config.js
-```
-
 This structure organizes the application into logical components, separating concerns and promoting maintainability.
