@@ -14,9 +14,29 @@ AgriBridge aims to revolutionize the agricultural supply chain by:
 
 To get started with the AgriBridge project, follow these steps:
 
-1. Clone the repository
-2. Install dependencies with `npm install`
-3. Run the development server with `npm start`
+1. Clone the repository:
+   ```
+   git clone https://github.com/your-username/AgriBridge.git
+   cd AgriBridge
+   ```
+
+2. Install dependencies:
+   ```
+   npm install
+   ```
+
+3. Set up environment variables:
+   - Create a `.env` file in the root directory
+   - Add necessary environment variables (e.g., API keys, database URLs)
+
+4. Run the development server:
+   ```
+   npm start
+   ```
+
+5. Open [http://localhost:3000](http://localhost:3000) to view the app in your browser
+
+Note: Make sure you have Node.js (version 14 or later) and npm installed on your system before starting.
 
 ## Available Scripts
 
@@ -89,3 +109,44 @@ We welcome contributions to the AgriBridge project. Please read our contributing
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Project Structure
+
+The AgriBridge project is organized as follows:
+
+```
+agribridge/
+├── public/
+│   ├── index.html
+│   └── favicon.ico
+├── src/
+│   ├── components/
+│   │   ├── Header.js
+│   │   └── Footer.js
+│   ├── pages/
+│   │   ├── HomePage.js
+│   │   ├── ProductPage.js
+│   │   └── LoginPage.js
+│   ├── services/
+│   │   ├── api.js
+│   │   ├── authService.js
+│   │   └── productService.js
+│   ├── utils/
+│   │   ├── formatDate.js
+│   │   └── calculatePrice.js
+│   ├── context/
+│   │   ├── AppContext.js
+│   │   └── AuthContext.js
+│   ├── hooks/
+│   │   ├── useAuth.js
+│   │   └── useProducts.js
+│   ├── styles/
+│   │   ├── App.css
+│   │   └── Theme.css
+│   └── App.js
+├── package.json
+├── README.md
+└── tailwind.config.js
+```
+
+This structure organizes the application into logical components, separating concerns and promoting maintainability.
