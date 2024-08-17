@@ -45,6 +45,37 @@ Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
+## Deployment
+
+To deploy the AgriBridge frontend on Netlify, follow these steps:
+
+1. Create a Netlify account at [https://www.netlify.com/](https://www.netlify.com/)
+2. Connect your GitHub account to Netlify
+3. Choose the AgriBridge repository for deployment
+4. Configure the build settings:
+   - Build command: `npm run build`
+   - Publish directory: `build`
+5. Click "Deploy site"
+
+Netlify will automatically build and deploy your site whenever you push changes to the main branch of your GitHub repository.
+
+## Usage
+
+Once you've accessed the AgriBridge platform, you can:
+
+1. Browse available products on the home page
+2. Use the search function to find specific items
+3. Add products to your cart
+4. View your order history
+5. For farmers: list new products for sale
+
+Navigate through the app using the menu at the bottom of the screen:
+- Home: View featured products and daily highlights
+- Browse: Search and filter all available products
+- Orders: Check your order history and status
+- Sell: For farmers to list new products (requires farmer account)
+- Community: Connect with local farmers and consumers
+
 ## Learn More
 
 You can learn more about Create React App in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
