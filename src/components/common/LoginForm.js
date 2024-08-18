@@ -3,7 +3,7 @@ import { Box, VStack, FormControl, FormLabel, Input, Button, Text, useToast, Sel
 import { useTranslation } from 'react-i18next';
 
 const LoginForm = ({ onSubmit }) => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [userType, setUserType] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -14,7 +14,7 @@ const LoginForm = ({ onSubmit }) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await onSubmit({ email, password, userType });
+      await onSubmit({ username, password, userType });
     } catch (error) {
       toast({
         title: t('loginFailed'),
@@ -29,30 +29,33 @@ const LoginForm = ({ onSubmit }) => {
   };
 
   return (
-    <Box as="form" onSubmit={handleSubmit} width="100%" maxWidth="400px">
+    <Box as="form" onSubmit={handleSubmit} width="100%" role="form">
       <VStack spacing={4}>
-        <FormControl id="email" isRequired>
-          <FormLabel>{t('email')}</FormLabel>
+        <FormControl id="username" isRequired>
+          <FormLabel htmlFor="username">{t('username')}</FormLabel>
           <Input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            id="username"
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
           />
         </FormControl>
         <FormControl id="password" isRequired>
-          <FormLabel>{t('password')}</FormLabel>
+          <FormLabel htmlFor="password">{t('password')}</FormLabel>
           <Input
+            id="password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </FormControl>
         <FormControl id="userType" isRequired>
-          <FormLabel>{t('userType')}</FormLabel>
+          <FormLabel htmlFor="userType">{t('userType')}</FormLabel>
           <Select
-            placeholder={t('selectUserType')}
+            id="userType"
             value={userType}
             onChange={(e) => setUserType(e.target.value)}
+            placeholder={t('selectUserType')}
           >
             <option value="farmer">{t('farmer')}</option>
             <option value="consumer">{t('consumer')}</option>
@@ -67,6 +70,9 @@ const LoginForm = ({ onSubmit }) => {
           {t('login')}
         </Button>
       </VStack>
+      <Text mt={4} fontSize="sm" color="gray.500">
+        {t('limitedAccessNote')}
+      </Text>
     </Box>
   );
 };

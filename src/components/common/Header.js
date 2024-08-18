@@ -48,6 +48,16 @@ const Header = () => {
           </Button>
           <Button
             as={Link}
+            to="/user-dashboard"
+            variant="headerButton"
+            isActive={location.pathname === '/user-dashboard'}
+            mr={2}
+            leftIcon={<ViewIcon />}
+          >
+            User Dashboard
+          </Button>
+          <Button
+            as={Link}
             to="/farmer-dashboard"
             variant="headerButton"
             isActive={location.pathname === '/farmer-dashboard'}
