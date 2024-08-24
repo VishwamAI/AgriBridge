@@ -11,10 +11,30 @@ import {
   useToast,
 } from '@chakra-ui/react';
 
+import React, { useState } from 'react';
+import {
+  Box,
+  Button,
+  FormControl,
+  FormLabel,
+  Input,
+  VStack,
+  Heading,
+  Text,
+  useToast,
+  Select,
+  Checkbox,
+  Link,
+} from '@chakra-ui/react';
+
 function Signup() {
-  const [username, setUsername] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [userType, setUserType] = useState('');
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
 
@@ -90,11 +110,19 @@ function Signup() {
         <form onSubmit={handleSubmit}>
           <VStack spacing={4}>
             <FormControl isRequired>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>First Name</FormLabel>
               <Input
                 type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+              />
+            </FormControl>
+            <FormControl isRequired>
+              <FormLabel>Last Name</FormLabel>
+              <Input
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
               />
             </FormControl>
             <FormControl isRequired>
@@ -113,16 +141,51 @@ function Signup() {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </FormControl>
+            <FormControl isRequired>
+              <FormLabel>Confirm Password</FormLabel>
+              <Input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+            </FormControl>
+            <FormControl isRequired>
+              <FormLabel>User Type</FormLabel>
+              <Select
+                placeholder="Select user type"
+                value={userType}
+                onChange={(e) => setUserType(e.target.value)}
+              >
+                <option value="farmer">Farmer</option>
+                <option value="customer">Customer</option>
+                <option value="community">Community</option>
+              </Select>
+            </FormControl>
+            <FormControl>
+              <Checkbox
+                isChecked={termsAccepted}
+                onChange={(e) => setTermsAccepted(e.target.checked)}
+              >
+                I accept the terms and conditions
+              </Checkbox>
+            </FormControl>
             <Button
               type="submit"
               colorScheme="green"
               width="full"
               isLoading={isLoading}
+              isDisabled={!termsAccepted}
             >
               Sign Up
             </Button>
           </VStack>
         </form>
+        <Text textAlign="center">
+          Already have an account?{' '}
+          <Link color="blue.500" href="/login">
+            Log in
+          </Link>
+        </Text>
       </VStack>
     </Box>
   );

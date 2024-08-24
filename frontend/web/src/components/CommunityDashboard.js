@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   VStack,
@@ -7,11 +7,29 @@ import {
   SimpleGrid,
   Button,
   useToast,
+  Stat,
+  StatLabel,
+  StatNumber,
+  StatHelpText,
 } from '@chakra-ui/react';
 
 function CommunityDashboard() {
   const [isLoading, setIsLoading] = useState(false);
+  const [communityData, setCommunityData] = useState(null);
   const toast = useToast();
+
+  useEffect(() => {
+    // Simulating API call to fetch community data
+    setTimeout(() => {
+      setCommunityData({
+        name: 'Green Valley Community',
+        membersCount: 150,
+        productsCount: 75,
+        eventsCount: 5,
+        forumPostsCount: 120,
+      });
+    }, 1000);
+  }, []);
 
   const handleAction = (action) => {
     setIsLoading(true);
@@ -29,12 +47,38 @@ function CommunityDashboard() {
   };
 
   return (
-    <Box maxWidth="800px" margin="auto" mt={8}>
+    <Box maxWidth="1200px" margin="auto" mt={8}>
       <VStack spacing={8} align="stretch">
         <Heading as="h1" size="xl" textAlign="center">
           Community Dashboard
         </Heading>
-        <SimpleGrid columns={2} spacing={10}>
+        {communityData ? (
+          <SimpleGrid columns={[1, 2, 4]} spacing={10}>
+            <Stat>
+              <StatLabel>Members</StatLabel>
+              <StatNumber>{communityData.membersCount}</StatNumber>
+              <StatHelpText>Active community members</StatHelpText>
+            </Stat>
+            <Stat>
+              <StatLabel>Products</StatLabel>
+              <StatNumber>{communityData.productsCount}</StatNumber>
+              <StatHelpText>Listed community products</StatHelpText>
+            </Stat>
+            <Stat>
+              <StatLabel>Events</StatLabel>
+              <StatNumber>{communityData.eventsCount}</StatNumber>
+              <StatHelpText>Upcoming community events</StatHelpText>
+            </Stat>
+            <Stat>
+              <StatLabel>Forum Posts</StatLabel>
+              <StatNumber>{communityData.forumPostsCount}</StatNumber>
+              <StatHelpText>Active discussions</StatHelpText>
+            </Stat>
+          </SimpleGrid>
+        ) : (
+          <Text>Loading community data...</Text>
+        )}
+        <SimpleGrid columns={[1, 2, 3]} spacing={10}>
           <Box p={5} shadow="md" borderWidth="1px">
             <Heading fontSize="xl">Community Profile</Heading>
             <Text mt={4}>Manage your community profile information.</Text>
@@ -57,31 +101,31 @@ function CommunityDashboard() {
             </Button>
           </Box>
           <Box p={5} shadow="md" borderWidth="1px">
-            <Heading fontSize="xl">Community Cart</Heading>
-            <Text mt={4}>View and manage community cart items.</Text>
-            <Button mt={4} colorScheme="green" onClick={() => handleAction('Cart management')}>
-              View Cart
+            <Heading fontSize="xl">Community Forum</Heading>
+            <Text mt={4}>Participate in community discussions.</Text>
+            <Button mt={4} colorScheme="green" onClick={() => handleAction('Forum management')}>
+              View Forum
             </Button>
           </Box>
           <Box p={5} shadow="md" borderWidth="1px">
-            <Heading fontSize="xl">Community Checkout</Heading>
-            <Text mt={4}>Manage community checkout process.</Text>
-            <Button mt={4} colorScheme="green" onClick={() => handleAction('Checkout process')}>
-              Checkout
+            <Heading fontSize="xl">Event Management</Heading>
+            <Text mt={4}>Organize and manage community events.</Text>
+            <Button mt={4} colorScheme="green" onClick={() => handleAction('Event management')}>
+              Manage Events
             </Button>
           </Box>
           <Box p={5} shadow="md" borderWidth="1px">
-            <Heading fontSize="xl">Community Payments</Heading>
-            <Text mt={4}>Manage community payment methods.</Text>
-            <Button mt={4} colorScheme="green" onClick={() => handleAction('Payment management')}>
-              Manage Payments
+            <Heading fontSize="xl">Resource Sharing</Heading>
+            <Text mt={4}>Share and access community resources.</Text>
+            <Button mt={4} colorScheme="green" onClick={() => handleAction('Resource management')}>
+              Manage Resources
             </Button>
           </Box>
           <Box p={5} shadow="md" borderWidth="1px">
-            <Heading fontSize="xl">Community Reviews</Heading>
-            <Text mt={4}>Manage community product reviews.</Text>
-            <Button mt={4} colorScheme="green" onClick={() => handleAction('Review management')}>
-              Manage Reviews
+            <Heading fontSize="xl">Collaboration Tools</Heading>
+            <Text mt={4}>Access community collaboration tools.</Text>
+            <Button mt={4} colorScheme="green" onClick={() => handleAction('Collaboration tools')}>
+              View Tools
             </Button>
           </Box>
           <Box p={5} shadow="md" borderWidth="1px">
@@ -89,13 +133,6 @@ function CommunityDashboard() {
             <Text mt={4}>Get help and support for your community.</Text>
             <Button mt={4} colorScheme="green" onClick={() => handleAction('Support request')}>
               Contact Support
-            </Button>
-          </Box>
-          <Box p={5} shadow="md" borderWidth="1px">
-            <Heading fontSize="xl">Logout</Heading>
-            <Text mt={4}>Logout from your community account.</Text>
-            <Button mt={4} colorScheme="red" onClick={() => handleAction('Logout')}>
-              Logout
             </Button>
           </Box>
         </SimpleGrid>
