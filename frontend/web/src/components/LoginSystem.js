@@ -11,9 +11,12 @@ import {
   useToast,
   Select,
   Checkbox,
+  PinInput,
+  PinInputField,
+  HStack,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
-import { login as apiLogin } from '../api';
+import { login as apiLogin, verify2FA } from '../api';
 import { AuthContext } from '../App';
 
 function LoginSystem() {
@@ -22,6 +25,8 @@ function LoginSystem() {
   const [userType, setUserType] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [is2FARequired, setIs2FARequired] = useState(false);
+  const [twoFACode, setTwoFACode] = useState('');
   const toast = useToast();
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
@@ -31,10 +36,10 @@ function LoginSystem() {
     setIsLoading(true);
 
     // Basic client-side validation
-    if (!email || !password || !userType) {
+    if (!email || !password || !userType || (is2FARequired && !twoFACode)) {
       toast({
         title: 'Error',
-        description: 'Please fill in all fields',
+        description: 'Please fill in all required fields',
         status: 'error',
         duration: 3000,
         isClosable: true,
@@ -44,48 +49,86 @@ function LoginSystem() {
     }
 
     try {
-      // Actual login logic using the API
-      const response = await apiLogin({ email, password, userType, rememberMe });
+      if (!is2FARequired) {
+        // Initial login attempt
+        const response = await apiLogin({ email, password, userType, rememberMe });
 
-      // Use the login function from AuthContext
-      login(userType, rememberMe ? response.data.token : null);
+        if (response.data.requires2FA) {
+          setIs2FARequired(true);
+          setIsLoading(false);
+          return;
+        }
 
-      // Redirect based on user type
-      switch (userType) {
-        case 'admin':
-          navigate('/admin-dashboard');
-          break;
-        case 'farmer':
-          navigate('/farmer-dashboard');
-          break;
-        case 'customer':
-          navigate('/user-dashboard');
-          break;
-        case 'community':
-          navigate('/community-dashboard');
-          break;
-        default:
-          throw new Error('Invalid user type');
+        // If 2FA is not required, proceed with login
+        await completeLogin(response.data.token);
+      } else {
+        // 2FA verification
+        const response = await verify2FA({ email, twoFACode });
+        await completeLogin(response.data.token);
       }
-
-      toast({
-        title: 'Login successful',
-        description: `Welcome back, ${userType}!`,
-        status: 'success',
-        duration: 5000,
-        isClosable: true,
-      });
     } catch (error) {
-      toast({
-        title: 'Login failed',
-        description: error.response?.data?.message || 'An error occurred during login.',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
+      if (error.response?.data?.error === '2FA_FAILED') {
+        toast({
+          title: '2FA Verification Failed',
+          description: 'Invalid 2FA code. Please try again.',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+        setTwoFACode('');
+      } else {
+        handleLoginError(error);
+      }
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handle2FASubmit = async () => {
+    setIsLoading(true);
+    try {
+      const response = await verify2FA({ email, twoFACode });
+      await completeLogin(response.data.token);
+    } catch (error) {
+      handleLoginError(error);
+    }
+  };
+
+  const completeLogin = async (token) => {
+    login(userType, rememberMe ? token : null);
+    navigateToDashboard();
+    showSuccessToast();
+  };
+
+  const navigateToDashboard = () => {
+    const dashboards = {
+      admin: '/admin-dashboard',
+      farmer: '/farmer-dashboard',
+      customer: '/user-dashboard',
+      community: '/community-dashboard',
+    };
+    navigate(dashboards[userType] || '/');
+  };
+
+  const showSuccessToast = () => {
+    toast({
+      title: 'Login successful',
+      description: `Welcome back, ${userType}!`,
+      status: 'success',
+      duration: 5000,
+      isClosable: true,
+    });
+  };
+
+  const handleLoginError = (error) => {
+    toast({
+      title: 'Login failed',
+      description: error.response?.data?.message || 'An error occurred during login.',
+      status: 'error',
+      duration: 5000,
+      isClosable: true,
+    });
+    setIsLoading(false);
   };
 
   return (
@@ -97,7 +140,7 @@ function LoginSystem() {
         <Text fontSize="lg" textAlign="center">
           Access your Growers Gate account
         </Text>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={is2FARequired ? handle2FASubmit : handleSubmit}>
           <VStack spacing={4}>
             <FormControl isRequired>
               <FormLabel>Email</FormLabel>
@@ -105,6 +148,7 @@ function LoginSystem() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                isDisabled={is2FARequired}
               />
             </FormControl>
             <FormControl isRequired>
@@ -113,6 +157,7 @@ function LoginSystem() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                isDisabled={is2FARequired}
               />
             </FormControl>
             <FormControl isRequired>
@@ -121,6 +166,7 @@ function LoginSystem() {
                 placeholder="Select user type"
                 value={userType}
                 onChange={(e) => setUserType(e.target.value)}
+                isDisabled={is2FARequired}
               >
                 <option value="admin">Admin</option>
                 <option value="farmer">Farmer</option>
@@ -128,9 +174,21 @@ function LoginSystem() {
                 <option value="community">Community</option>
               </Select>
             </FormControl>
+            {is2FARequired && (
+              <FormControl isRequired>
+                <FormLabel>2FA Code</FormLabel>
+                <Input
+                  type="text"
+                  value={twoFACode}
+                  onChange={(e) => setTwoFACode(e.target.value)}
+                  placeholder="Enter 2FA code"
+                />
+              </FormControl>
+            )}
             <Checkbox
               isChecked={rememberMe}
               onChange={(e) => setRememberMe(e.target.checked)}
+              isDisabled={is2FARequired}
             >
               Remember me
             </Checkbox>
@@ -139,8 +197,9 @@ function LoginSystem() {
               colorScheme="green"
               width="full"
               isLoading={isLoading}
+              isDisabled={is2FARequired && !twoFACode}
             >
-              Login
+              {is2FARequired ? 'Verify 2FA' : 'Login'}
             </Button>
           </VStack>
         </form>
