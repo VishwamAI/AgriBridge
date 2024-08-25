@@ -11,11 +11,23 @@ import {
   SimpleGrid,
   Input,
   IconButton,
+  useBreakpointValue,
 } from '@chakra-ui/react';
-import { ArrowForwardIcon } from '@chakra-ui/icons';
+import { ArrowForwardIcon, ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { Link } from 'react-router-dom';
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
 
 function HomePage() {
+  console.log('Rendering HomePage component');
+  React.useEffect(() => {
+    console.log('HomePage component mounted');
+    return () => {
+      console.log('HomePage component unmounted');
+    };
+  }, []);
+
   return (
     <Box>
       {/* Hero Section */}
@@ -53,7 +65,7 @@ function HomePage() {
           <Heading as="h2" size="xl" mb={8} textAlign="center">
             Featured Products
           </Heading>
-          {/* Add carousel component here */}
+          <FeaturedProductsCarousel />
         </Container>
       </Box>
 
@@ -185,3 +197,96 @@ function HomePage() {
 }
 
 export default HomePage;
+
+const FeaturedProductsCarousel = () => {
+  const [slider, setSlider] = React.useState(null);
+  const top = useBreakpointValue({ base: '90%', md: '50%' });
+  const side = useBreakpointValue({ base: '30%', md: '40px' });
+
+  const cards = [
+    { image: '/product1.jpg', title: 'Fresh Apples' },
+    { image: '/product2.jpg', title: 'Organic Tomatoes' },
+    { image: '/product3.jpg', title: 'Farm Eggs' },
+    { image: '/product4.jpg', title: 'Local Honey' },
+  ];
+
+  const settings = {
+    dots: true,
+    arrows: false,
+    fade: true,
+    infinite: true,
+    autoplay: true,
+    speed: 500,
+    autoplaySpeed: 5000,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+  };
+
+  return (
+    <Box position="relative" height="400px" width="full" overflow="hidden">
+      <link
+        rel="stylesheet"
+        type="text/css"
+        charSet="UTF-8"
+        href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css"
+      />
+      <link
+        rel="stylesheet"
+        type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css"
+      />
+      <IconButton
+        aria-label="left-arrow"
+        variant="ghost"
+        position="absolute"
+        left={side}
+        top={top}
+        transform={'translate(0%, -50%)'}
+        zIndex={2}
+        onClick={() => slider?.slickPrev()}
+      >
+        <ArrowLeftIcon size="40px" />
+      </IconButton>
+      <IconButton
+        aria-label="right-arrow"
+        variant="ghost"
+        position="absolute"
+        right={side}
+        top={top}
+        transform={'translate(0%, -50%)'}
+        zIndex={2}
+        onClick={() => slider?.slickNext()}
+      >
+        <ArrowRightIcon size="40px" />
+      </IconButton>
+      <Slider {...settings} ref={(slider) => setSlider(slider)}>
+        {cards.map((card, index) => (
+          <Box
+            key={index}
+            height="400px"
+            position="relative"
+            backgroundPosition="center"
+            backgroundRepeat="no-repeat"
+            backgroundSize="cover"
+            backgroundImage={`url(${card.image})`}
+          >
+            <Container size="container.lg" height="400px" position="relative">
+              <Stack
+                spacing={6}
+                w="full"
+                maxW="lg"
+                position="absolute"
+                top="50%"
+                transform="translate(0, -50%)"
+              >
+                <Heading fontSize={{ base: '3xl', md: '4xl', lg: '5xl' }}>
+                  {card.title}
+                </Heading>
+              </Stack>
+            </Container>
+          </Box>
+        ))}
+      </Slider>
+    </Box>
+  );
+};
