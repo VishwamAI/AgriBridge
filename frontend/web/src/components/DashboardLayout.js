@@ -69,7 +69,7 @@ const DashboardLayout = ({ children }) => {
     <Flex flexDirection="column" h="100vh">
       {/* Top Navigation */}
       <Flex bg="white" p={4} alignItems="center" justifyContent="space-between" boxShadow="sm">
-        <Heading size="lg" color="blue.600">FarmConnect</Heading>
+        <Heading size="lg" color="blue.600">Growers Gate</Heading>
         <Flex alignItems="center">
           <Box position="relative" mr={4}>
             <Input
