@@ -26,13 +26,23 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../App';
 
 function Navbar() {
-  const { isLoggedIn, logout } = useContext(AuthContext);
+  const { isLoggedIn, logout, userType } = useContext(AuthContext);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
     navigate('/');
+  };
+
+  const getDashboardLink = () => {
+    switch (userType) {
+      case 'admin': return '/admin-dashboard';
+      case 'farmer': return '/farmer-dashboard';
+      case 'customer': return '/user-dashboard';
+      case 'community': return '/community-dashboard';
+      default: return '/';
+    }
   };
 
   return (
@@ -79,6 +89,7 @@ function Navbar() {
                 My Account
               </MenuButton>
               <MenuList>
+                <MenuItem as={Link} to={getDashboardLink()}>Dashboard</MenuItem>
                 <MenuItem as={Link} to="/profile">Profile</MenuItem>
                 <MenuItem as={Link} to="/orders">Orders</MenuItem>
                 <MenuItem as={Link} to="/settings">Settings</MenuItem>
