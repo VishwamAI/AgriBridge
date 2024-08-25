@@ -2,7 +2,7 @@
 name = "backend"
 version = "0.1.0"
 description = ""
-authors = ["devin-ai-integration[bot] <158243242+devin-ai-integration[bot]@users.noreply.github.com>"]
+authors = ["Kasinadh Sarma <kasinadhsarma@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
