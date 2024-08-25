@@ -14,6 +14,9 @@ export const login = (credentials) => api.post('/auth/login', credentials);
 export const signup = (userData) => api.post('/auth/signup', userData);
 export const forgotPassword = (email) => api.post('/auth/forgot-password', { email });
 export const resetPassword = (token, newPassword) => api.post('/auth/reset-password', { token, newPassword });
+export const verify2FA = (verificationData) => api.post('/auth/verify-2fa', verificationData);
+export const requestRecoveryCode = (email) => api.post('/auth/request-recovery-code', { email });
+export const verifyRecoveryCode = (recoveryData) => api.post('/auth/verify-recovery-code', recoveryData);
 
 // User endpoints
 export const getUserProfile = () => api.get('/user/profile');

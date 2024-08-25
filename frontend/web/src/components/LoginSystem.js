@@ -14,9 +14,11 @@ import {
   PinInput,
   PinInputField,
   HStack,
+  Radio,
+  RadioGroup,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
-import { login as apiLogin, verify2FA } from '../api';
+import { login as apiLogin, verify2FA, verify2FARecovery } from '../api';
 import { AuthContext } from '../App';
 
 function LoginSystem() {
@@ -27,6 +29,9 @@ function LoginSystem() {
   const [isLoading, setIsLoading] = useState(false);
   const [is2FARequired, setIs2FARequired] = useState(false);
   const [twoFACode, setTwoFACode] = useState('');
+  const [twoFAType, setTwoFAType] = useState('app');
+  const [recoveryCode, setRecoveryCode] = useState('');
+  const [isRecoveryMode, setIsRecoveryMode] = useState(false);
   const toast = useToast();
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
@@ -55,6 +60,7 @@ function LoginSystem() {
 
         if (response.data.requires2FA) {
           setIs2FARequired(true);
+          setTwoFAType(response.data.twoFAType);
           setIsLoading(false);
           return;
         }
@@ -63,19 +69,25 @@ function LoginSystem() {
         await completeLogin(response.data.token);
       } else {
         // 2FA verification
-        const response = await verify2FA({ email, twoFACode });
-        await completeLogin(response.data.token);
+        let verificationResponse;
+        if (isUsingRecoveryCode) {
+          verificationResponse = await verify2FARecovery({ email, recoveryCode });
+        } else {
+          verificationResponse = await verify2FA({ email, twoFACode, twoFAType });
+        }
+        await completeLogin(verificationResponse.data.token);
       }
     } catch (error) {
       if (error.response?.data?.error === '2FA_FAILED') {
         toast({
           title: '2FA Verification Failed',
-          description: 'Invalid 2FA code. Please try again.',
+          description: 'Invalid 2FA code or recovery code. Please try again.',
           status: 'error',
           duration: 5000,
           isClosable: true,
         });
         setTwoFACode('');
+        setRecoveryCode('');
       } else {
         handleLoginError(error);
       }
@@ -175,15 +187,59 @@ function LoginSystem() {
               </Select>
             </FormControl>
             {is2FARequired && (
-              <FormControl isRequired>
-                <FormLabel>2FA Code</FormLabel>
-                <Input
-                  type="text"
-                  value={twoFACode}
-                  onChange={(e) => setTwoFACode(e.target.value)}
-                  placeholder="Enter 2FA code"
-                />
-              </FormControl>
+              <>
+                <FormControl isRequired>
+                  <FormLabel>2FA Type</FormLabel>
+                  <Select
+                    value={twoFAType}
+                    onChange={(e) => setTwoFAType(e.target.value)}
+                  >
+                    <option value="sms">SMS</option>
+                    <option value="app">Authenticator App</option>
+                    <option value="email">Email</option>
+                  </Select>
+                </FormControl>
+                <FormControl isRequired>
+                  <FormLabel>2FA Code</FormLabel>
+                  {twoFAType === 'app' ? (
+                    <HStack>
+                      <PinInput value={twoFACode} onChange={(value) => setTwoFACode(value)}>
+                        <PinInputField />
+                        <PinInputField />
+                        <PinInputField />
+                        <PinInputField />
+                        <PinInputField />
+                        <PinInputField />
+                      </PinInput>
+                    </HStack>
+                  ) : (
+                    <Input
+                      type="text"
+                      value={twoFACode}
+                      onChange={(e) => setTwoFACode(e.target.value)}
+                      placeholder={`Enter ${twoFAType === 'sms' ? 'SMS' : 'Email'} code`}
+                    />
+                  )}
+                </FormControl>
+                <Button
+                  onClick={() => setUseRecoveryCode(!useRecoveryCode)}
+                  variant="link"
+                  size="sm"
+                >
+                  {useRecoveryCode ? "Use 2FA Code" : "Use Recovery Code"}
+                </Button>
+                {useRecoveryCode && (
+                  <FormControl isRequired>
+                    <FormLabel>Recovery Code</FormLabel>
+                    <Input
+                      type="text"
+                      value={recoveryCode}
+                      onChange={(e) => setRecoveryCode(e.target.value)}
+                      placeholder="Enter recovery code"
+                    />
+                  </FormControl>
+                )}
+              </>
             )}
             <Checkbox
               isChecked={rememberMe}
@@ -197,7 +253,7 @@ function LoginSystem() {
               colorScheme="green"
               width="full"
               isLoading={isLoading}
-              isDisabled={is2FARequired && !twoFACode}
+              isDisabled={is2FARequired && !twoFACode && !recoveryCode}
             >
               {is2FARequired ? 'Verify 2FA' : 'Login'}
             </Button>
