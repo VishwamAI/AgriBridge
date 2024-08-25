@@ -10,13 +10,16 @@ import {
   Text,
   useToast,
   Select,
+  Checkbox,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
+import { login } from '../api';
 
 function LoginSystem() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [userType, setUserType] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
   const navigate = useNavigate();
@@ -41,10 +44,15 @@ function LoginSystem() {
     try {
       // TODO: Implement actual login logic here
       // This should involve a call to your backend API
-      console.log('Login submitted:', { email, userType });
+      console.log('Login submitted:', { email, userType, rememberMe });
 
       // Simulating API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const response = await login({ email, password, userType, rememberMe });
+
+      // If remember me is checked, store the token in localStorage
+      if (rememberMe) {
+        localStorage.setItem('authToken', response.data.token);
+      }
 
       // Redirect based on user type
       switch (userType) {
@@ -74,7 +82,7 @@ function LoginSystem() {
     } catch (error) {
       toast({
         title: 'Login failed',
-        description: error.message || 'An error occurred during login.',
+        description: error.response?.data?.message || 'An error occurred during login.',
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -124,6 +132,12 @@ function LoginSystem() {
                 <option value="community">Community</option>
               </Select>
             </FormControl>
+            <Checkbox
+              isChecked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+            >
+              Remember me
+            </Checkbox>
             <Button
               type="submit"
               colorScheme="green"
