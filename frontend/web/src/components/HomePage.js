@@ -13,6 +13,7 @@ import {
   IconButton,
 } from '@chakra-ui/react';
 import { ArrowForwardIcon } from '@chakra-ui/icons';
+import { Link } from 'react-router-dom';
 
 function HomePage() {
   return (
@@ -28,12 +29,16 @@ function HomePage() {
               <Text fontSize="xl" mb={6}>
                 Connecting farmers and consumers for fresher, healthier produce
               </Text>
-              <Button colorScheme="white" variant="outline" size="lg" mr={4}>
-                Sign Up
-              </Button>
-              <Button colorScheme="green" size="lg">
-                Learn More
-              </Button>
+              <Link to="/login">
+                <Button as="span" colorScheme="white" variant="outline" size="lg" mr={4}>
+                  Sign Up
+                </Button>
+              </Link>
+              <Link to="/about">
+                <Button as="span" colorScheme="green" size="lg">
+                  Learn More
+                </Button>
+              </Link>
             </Box>
             <Box flex={1}>
               <Image src="/hero-image.jpg" alt="Fresh produce" borderRadius="md" />
