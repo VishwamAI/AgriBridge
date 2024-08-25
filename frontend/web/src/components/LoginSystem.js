@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   Box,
   Button,
@@ -13,7 +13,8 @@ import {
   Checkbox,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
-import { login } from '../api';
+import { login as apiLogin } from '../api';
+import { AuthContext } from '../App';
 
 function LoginSystem() {
   const [email, setEmail] = useState('');
@@ -23,6 +24,7 @@ function LoginSystem() {
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,17 +44,11 @@ function LoginSystem() {
     }
 
     try {
-      // TODO: Implement actual login logic here
-      // This should involve a call to your backend API
-      console.log('Login submitted:', { email, userType, rememberMe });
+      // Actual login logic using the API
+      const response = await apiLogin({ email, password, userType, rememberMe });
 
-      // Simulating API call
-      const response = await login({ email, password, userType, rememberMe });
-
-      // If remember me is checked, store the token in localStorage
-      if (rememberMe) {
-        localStorage.setItem('authToken', response.data.token);
-      }
+      // Use the login function from AuthContext
+      login(userType, rememberMe ? response.data.token : null);
 
       // Redirect based on user type
       switch (userType) {

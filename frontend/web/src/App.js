@@ -67,6 +67,8 @@ function AuthProvider({ children }) {
 }
 
 function App() {
+  const { isLoggedIn, userType } = React.useContext(AuthContext);
+
   return (
     <ChakraProvider>
       <AuthProvider>
@@ -76,39 +78,33 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginSystem />} />
             <Route
-              path="/admin-dashboard"
+              path="/dashboard"
               element={
-                <ProtectedRoute userType="admin">
-                  <AdminDashboard />
+                <ProtectedRoute>
+                  {userType === 'admin' && <AdminDashboard />}
+                  {userType === 'user' && <UserDashboard />}
+                  {userType === 'farmer' && <FarmerDashboard />}
+                  {userType === 'community' && <CommunityDashboard />}
                 </ProtectedRoute>
               }
             />
             <Route
-              path="/user-dashboard"
+              path="/payment"
               element={
-                <ProtectedRoute userType="user">
-                  <UserDashboard />
+                <ProtectedRoute>
+                  <PaymentIntegration />
                 </ProtectedRoute>
               }
             />
             <Route
-              path="/farmer-dashboard"
+              path="/entertainment"
               element={
-                <ProtectedRoute userType="farmer">
-                  <FarmerDashboard />
+                <ProtectedRoute>
+                  <EntertainmentDashboard />
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/community-dashboard"
-              element={
-                <ProtectedRoute userType="community">
-                  <CommunityDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/payment" element={<PaymentIntegration />} />
-            <Route path="/entertainment-dashboard" element={<EntertainmentDashboard />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Router>
       </AuthProvider>
