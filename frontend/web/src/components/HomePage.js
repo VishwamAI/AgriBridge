@@ -12,6 +12,7 @@ import {
   Input,
   IconButton,
   useBreakpointValue,
+  Stack,
 } from '@chakra-ui/react';
 import { ArrowForwardIcon, ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { Link } from 'react-router-dom';
@@ -20,49 +21,43 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 
 function HomePage() {
-  console.log('Rendering HomePage component');
-  React.useEffect(() => {
-    console.log('HomePage component mounted');
-    return () => {
-      console.log('HomePage component unmounted');
-    };
-  }, []);
-
   return (
     <Box>
       {/* Hero Section */}
-      <Box bg="green.500" color="white" py={16}>
+      <Box bg="green.500" color="white" py={{ base: 8, md: 16 }}>
         <Container maxW="container.xl">
           <Flex direction={{ base: 'column', md: 'row' }} align="center">
             <Box flex={1} mr={{ base: 0, md: 8 }} mb={{ base: 8, md: 0 }}>
-              <Heading as="h1" size="2xl" mb={4}>
+              <Heading as="h1" size={{ base: "xl", md: "2xl" }} mb={4}>
                 Welcome to Growers-Gate
               </Heading>
-              <Text fontSize="xl" mb={6}>
+              <Text fontSize={{ base: "lg", md: "xl" }} mb={6}>
                 Connecting farmers and consumers for fresher, healthier produce
               </Text>
-              <Link to="/login">
-                <Button as="span" colorScheme="white" variant="outline" size="lg" mr={4}>
-                  Sign Up
-                </Button>
-              </Link>
-              <Link to="/about">
-                <Button as="span" colorScheme="green" size="lg">
-                  Learn More
-                </Button>
-              </Link>
+              <Stack direction={{ base: "column", sm: "row" }} spacing={4}>
+                <Link to="/login">
+                  <Button as="span" colorScheme="white" variant="outline" size={{ base: "md", md: "lg" }}>
+                    Sign Up
+                  </Button>
+                </Link>
+                <Link to="/about">
+                  <Button as="span" colorScheme="green" size={{ base: "md", md: "lg" }}>
+                    Learn More
+                  </Button>
+                </Link>
+              </Stack>
             </Box>
-            <Box flex={1}>
-              <Image src="/hero-image.jpg" alt="Fresh produce" borderRadius="md" />
+            <Box flex={1} mt={{ base: 8, md: 0 }}>
+              <Image src="/hero-image.jpg" alt="Fresh produce" borderRadius="md" w="full" />
             </Box>
           </Flex>
         </Container>
       </Box>
 
       {/* Featured Products Carousel */}
-      <Box py={16}>
+      <Box py={{ base: 8, md: 16 }}>
         <Container maxW="container.xl">
-          <Heading as="h2" size="xl" mb={8} textAlign="center">
+          <Heading as="h2" size={{ base: "lg", md: "xl" }} mb={8} textAlign="center">
             Featured Products
           </Heading>
           <FeaturedProductsCarousel />
@@ -70,12 +65,12 @@ function HomePage() {
       </Box>
 
       {/* About Us Section */}
-      <Box bg="gray.100" py={16}>
+      <Box bg="gray.100" py={{ base: 8, md: 16 }}>
         <Container maxW="container.xl">
-          <Heading as="h2" size="xl" mb={8} textAlign="center">
+          <Heading as="h2" size={{ base: "lg", md: "xl" }} mb={8} textAlign="center">
             About Us
           </Heading>
-          <Text fontSize="lg" textAlign="center" maxW="2xl" mx="auto">
+          <Text fontSize={{ base: "md", md: "lg" }} textAlign="center" maxW="2xl" mx="auto">
             Growers-Gate is a platform dedicated to connecting local farmers with consumers,
             promoting sustainable agriculture and providing access to fresh, high-quality produce.
           </Text>
@@ -83,35 +78,35 @@ function HomePage() {
       </Box>
 
       {/* How It Works Section */}
-      <Box py={16}>
+      <Box py={{ base: 8, md: 16 }}>
         <Container maxW="container.xl">
-          <Heading as="h2" size="xl" mb={8} textAlign="center">
+          <Heading as="h2" size={{ base: "lg", md: "xl" }} mb={8} textAlign="center">
             How It Works
           </Heading>
-          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10}>
+          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={{ base: 8, md: 10 }}>
             <VStack>
-              <Image src="/icon-farmer.png" alt="Farmer icon" boxSize="100px" />
-              <Heading as="h3" size="lg">Farmers List Products</Heading>
-              <Text textAlign="center">Local farmers list their fresh produce on our platform.</Text>
+              <Image src="/icon-farmer.png" alt="Farmer icon" boxSize={{ base: "80px", md: "100px" }} />
+              <Heading as="h3" size={{ base: "md", md: "lg" }}>Farmers List Products</Heading>
+              <Text textAlign="center" fontSize={{ base: "sm", md: "md" }}>Local farmers list their fresh produce on our platform.</Text>
             </VStack>
             <VStack>
-              <Image src="/icon-consumer.png" alt="Consumer icon" boxSize="100px" />
-              <Heading as="h3" size="lg">Consumers Order</Heading>
-              <Text textAlign="center">Customers browse and order directly from farmers.</Text>
+              <Image src="/icon-consumer.png" alt="Consumer icon" boxSize={{ base: "80px", md: "100px" }} />
+              <Heading as="h3" size={{ base: "md", md: "lg" }}>Consumers Order</Heading>
+              <Text textAlign="center" fontSize={{ base: "sm", md: "md" }}>Customers browse and order directly from farmers.</Text>
             </VStack>
             <VStack>
-              <Image src="/icon-delivery.png" alt="Delivery icon" boxSize="100px" />
-              <Heading as="h3" size="lg">Fresh Delivery</Heading>
-              <Text textAlign="center">Products are delivered fresh from farm to table.</Text>
+              <Image src="/icon-delivery.png" alt="Delivery icon" boxSize={{ base: "80px", md: "100px" }} />
+              <Heading as="h3" size={{ base: "md", md: "lg" }}>Fresh Delivery</Heading>
+              <Text textAlign="center" fontSize={{ base: "sm", md: "md" }}>Products are delivered fresh from farm to table.</Text>
             </VStack>
           </SimpleGrid>
         </Container>
       </Box>
 
       {/* Testimonials Section */}
-      <Box bg="gray.100" py={16}>
+      <Box bg="gray.100" py={{ base: 8, md: 16 }}>
         <Container maxW="container.xl">
-          <Heading as="h2" size="xl" mb={8} textAlign="center">
+          <Heading as="h2" size={{ base: "lg", md: "xl" }} mb={8} textAlign="center">
             What Our Users Say
           </Heading>
           {/* Add testimonials component here */}
@@ -119,45 +114,46 @@ function HomePage() {
       </Box>
 
       {/* Benefits Section */}
-      <Box py={16}>
+      <Box py={{ base: 8, md: 16 }}>
         <Container maxW="container.xl">
-          <Heading as="h2" size="xl" mb={8} textAlign="center">
+          <Heading as="h2" size={{ base: "lg", md: "xl" }} mb={8} textAlign="center">
             Benefits of Using Growers-Gate
           </Heading>
-          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10}>
-            <VStack align="start">
-              <Heading as="h3" size="lg">For Farmers</Heading>
-              <Text>• Direct access to customers</Text>
-              <Text>• Higher profit margins</Text>
-              <Text>• Reduced food waste</Text>
+          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={{ base: 8, md: 10 }}>
+            <VStack align="start" spacing={4}>
+              <Heading as="h3" size={{ base: "md", md: "lg" }}>For Farmers</Heading>
+              <Text fontSize={{ base: "sm", md: "md" }}>• Direct access to customers</Text>
+              <Text fontSize={{ base: "sm", md: "md" }}>• Higher profit margins</Text>
+              <Text fontSize={{ base: "sm", md: "md" }}>• Reduced food waste</Text>
             </VStack>
-            <VStack align="start">
-              <Heading as="h3" size="lg">For Customers</Heading>
-              <Text>• Fresh, locally sourced produce</Text>
-              <Text>• Support local agriculture</Text>
-              <Text>• Transparent food sourcing</Text>
+            <VStack align="start" spacing={4}>
+              <Heading as="h3" size={{ base: "md", md: "lg" }}>For Customers</Heading>
+              <Text fontSize={{ base: "sm", md: "md" }}>• Fresh, locally sourced produce</Text>
+              <Text fontSize={{ base: "sm", md: "md" }}>• Support local agriculture</Text>
+              <Text fontSize={{ base: "sm", md: "md" }}>• Transparent food sourcing</Text>
             </VStack>
           </SimpleGrid>
         </Container>
       </Box>
 
       {/* Newsletter Signup */}
-      <Box bg="green.500" color="white" py={16}>
+      <Box bg="green.500" color="white" py={{ base: 8, md: 16 }}>
         <Container maxW="container.xl">
           <VStack spacing={4}>
-            <Heading as="h2" size="xl" textAlign="center">
+            <Heading as="h2" size={{ base: "lg", md: "xl" }} textAlign="center">
               Stay Updated
             </Heading>
-            <Text fontSize="lg" textAlign="center">
+            <Text fontSize={{ base: "md", md: "lg" }} textAlign="center">
               Subscribe to our newsletter for the latest updates and offers
             </Text>
-            <Flex maxW="md" w="full">
-              <Input placeholder="Enter your email" bg="white" color="black" />
+            <Flex maxW="md" w="full" flexDirection={{ base: "column", sm: "row" }}>
+              <Input placeholder="Enter your email" bg="white" color="black" mb={{ base: 2, sm: 0 }} />
               <IconButton
                 colorScheme="green"
                 aria-label="Subscribe"
                 icon={<ArrowForwardIcon />}
-                ml={2}
+                ml={{ base: 0, sm: 2 }}
+                mt={{ base: 2, sm: 0 }}
               />
             </Flex>
           </VStack>
@@ -165,28 +161,28 @@ function HomePage() {
       </Box>
 
       {/* Footer */}
-      <Box bg="gray.800" color="white" py={8}>
+      <Box bg="gray.800" color="white" py={{ base: 8, md: 12 }}>
         <Container maxW="container.xl">
-          <SimpleGrid columns={{ base: 1, md: 4 }} spacing={8}>
+          <SimpleGrid columns={{ base: 1, sm: 2, md: 4 }} spacing={{ base: 8, md: 4 }}>
             <VStack align="start">
-              <Heading as="h3" size="md">Quick Links</Heading>
-              <Button variant="link" color="white">Home</Button>
-              <Button variant="link" color="white">About</Button>
-              <Button variant="link" color="white">Products</Button>
-              <Button variant="link" color="white">Contact</Button>
+              <Heading as="h3" size="sm">Quick Links</Heading>
+              <Button variant="link" color="white" fontSize={{ base: "sm", md: "md" }}>Home</Button>
+              <Button variant="link" color="white" fontSize={{ base: "sm", md: "md" }}>About</Button>
+              <Button variant="link" color="white" fontSize={{ base: "sm", md: "md" }}>Products</Button>
+              <Button variant="link" color="white" fontSize={{ base: "sm", md: "md" }}>Contact</Button>
             </VStack>
             <VStack align="start">
-              <Heading as="h3" size="md">For Farmers</Heading>
-              <Button variant="link" color="white">Join as Farmer</Button>
-              <Button variant="link" color="white">Farmer Resources</Button>
+              <Heading as="h3" size="sm">For Farmers</Heading>
+              <Button variant="link" color="white" fontSize={{ base: "sm", md: "md" }}>Join as Farmer</Button>
+              <Button variant="link" color="white" fontSize={{ base: "sm", md: "md" }}>Farmer Resources</Button>
             </VStack>
             <VStack align="start">
-              <Heading as="h3" size="md">For Customers</Heading>
-              <Button variant="link" color="white">Find Local Produce</Button>
-              <Button variant="link" color="white">Cooking Tips</Button>
+              <Heading as="h3" size="sm">For Customers</Heading>
+              <Button variant="link" color="white" fontSize={{ base: "sm", md: "md" }}>Find Local Produce</Button>
+              <Button variant="link" color="white" fontSize={{ base: "sm", md: "md" }}>Cooking Tips</Button>
             </VStack>
             <VStack align="start">
-              <Heading as="h3" size="md">Connect With Us</Heading>
+              <Heading as="h3" size="sm">Connect With Us</Heading>
               {/* Add social media icons here */}
             </VStack>
           </SimpleGrid>
@@ -223,7 +219,7 @@ const FeaturedProductsCarousel = () => {
   };
 
   return (
-    <Box position="relative" height="400px" width="full" overflow="hidden">
+    <Box position="relative" height={{ base: "300px", md: "400px" }} width="full" overflow="hidden">
       <link
         rel="stylesheet"
         type="text/css"
@@ -245,7 +241,7 @@ const FeaturedProductsCarousel = () => {
         zIndex={2}
         onClick={() => slider?.slickPrev()}
       >
-        <ArrowLeftIcon size="40px" />
+        <ChevronLeftIcon boxSize={{ base: "24px", md: "40px" }} />
       </IconButton>
       <IconButton
         aria-label="right-arrow"
@@ -257,20 +253,20 @@ const FeaturedProductsCarousel = () => {
         zIndex={2}
         onClick={() => slider?.slickNext()}
       >
-        <ArrowRightIcon size="40px" />
+        <ChevronRightIcon boxSize={{ base: "24px", md: "40px" }} />
       </IconButton>
       <Slider {...settings} ref={(slider) => setSlider(slider)}>
         {cards.map((card, index) => (
           <Box
             key={index}
-            height="400px"
+            height={{ base: "300px", md: "400px" }}
             position="relative"
             backgroundPosition="center"
             backgroundRepeat="no-repeat"
             backgroundSize="cover"
             backgroundImage={`url(${card.image})`}
           >
-            <Container size="container.lg" height="400px" position="relative">
+            <Container size="container.lg" height={{ base: "300px", md: "400px" }} position="relative">
               <Stack
                 spacing={6}
                 w="full"
@@ -279,7 +275,7 @@ const FeaturedProductsCarousel = () => {
                 top="50%"
                 transform="translate(0, -50%)"
               >
-                <Heading fontSize={{ base: '3xl', md: '4xl', lg: '5xl' }}>
+                <Heading fontSize={{ base: '2xl', md: '4xl', lg: '5xl' }}>
                   {card.title}
                 </Heading>
               </Stack>
