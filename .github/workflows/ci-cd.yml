@@ -27,6 +27,11 @@ jobs:
         cd backend
         poetry install
 
+    - name: Install pytest
+      run: |
+        cd backend
+        poetry run pip install pytest
+
     - name: Run backend tests
       run: |
         cd backend
