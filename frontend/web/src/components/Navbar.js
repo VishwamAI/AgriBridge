@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext } from 'react';
 import {
   Box,
   Flex,
@@ -22,11 +22,18 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { HamburgerIcon, SearchIcon, ChevronDownIcon } from '@chakra-ui/icons';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../App';
 
 function Navbar() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Simulating login state
+  const { isLoggedIn, logout } = useContext(AuthContext);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   return (
     <Box bg="green.500" px={4}>
@@ -72,14 +79,14 @@ function Navbar() {
                 My Account
               </MenuButton>
               <MenuList>
-                <MenuItem>Profile</MenuItem>
-                <MenuItem>Orders</MenuItem>
-                <MenuItem>Settings</MenuItem>
-                <MenuItem onClick={() => setIsLoggedIn(false)}>Logout</MenuItem>
+                <MenuItem as={Link} to="/profile">Profile</MenuItem>
+                <MenuItem as={Link} to="/orders">Orders</MenuItem>
+                <MenuItem as={Link} to="/settings">Settings</MenuItem>
+                <MenuItem onClick={handleLogout}>Logout</MenuItem>
               </MenuList>
             </Menu>
           ) : (
-            <Button ml={4} onClick={() => setIsLoggedIn(true)}>
+            <Button ml={4} as={Link} to="/login">
               Login
             </Button>
           )}
