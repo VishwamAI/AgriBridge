@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000/api'; // Replace with your actual API base URL
+const API_BASE_URL = 'https://backend-vqnufjhq.fly.dev/api'; // Deployed backend URL
 
 const api = axios.create({
   baseURL: API_BASE_URL,
