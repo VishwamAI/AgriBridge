@@ -35,6 +35,10 @@ jobs:
         cd backend
         poetry run pip install pytest
 
+    - name: Copy .env file
+      run: |
+        cp .env backend/.env
+
     - name: Run backend tests
       run: |
         cd backend
