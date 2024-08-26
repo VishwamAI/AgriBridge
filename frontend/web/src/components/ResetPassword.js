@@ -11,9 +11,8 @@ import {
   useToast,
 } from '@chakra-ui/react';
 
-function ResetPassword() {
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+function ForgotPassword() {
+  const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
 
@@ -22,10 +21,10 @@ function ResetPassword() {
     setIsLoading(true);
 
     // Basic client-side validation
-    if (!newPassword || !confirmPassword) {
+    if (!email) {
       toast({
         title: 'Error',
-        description: 'Please fill in all fields',
+        description: 'Please enter your email address',
         status: 'error',
         duration: 3000,
         isClosable: true,
@@ -34,11 +33,12 @@ function ResetPassword() {
       return;
     }
 
-    // Check if passwords match
-    if (newPassword !== confirmPassword) {
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
       toast({
         title: 'Error',
-        description: 'Passwords do not match',
+        description: 'Please enter a valid email address',
         status: 'error',
         duration: 3000,
         isClosable: true,
@@ -47,28 +47,15 @@ function ResetPassword() {
       return;
     }
 
-    // Password strength check (example: at least 8 characters)
-    if (newPassword.length < 8) {
-      toast({
-        title: 'Error',
-        description: 'Password must be at least 8 characters long',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-      setIsLoading(false);
-      return;
-    }
-
-    // TODO: Implement actual password reset logic here
-    console.log('Password reset submitted:', { newPassword });
+    // TODO: Implement actual forgot password logic here
+    console.log('Forgot password submitted for:', email);
 
     // Simulating API call
     setTimeout(() => {
       setIsLoading(false);
       toast({
-        title: 'Password reset successful',
-        description: 'Your password has been updated.',
+        title: 'Password reset email sent',
+        description: 'Please check your email for further instructions.',
         status: 'success',
         duration: 5000,
         isClosable: true,
@@ -80,27 +67,19 @@ function ResetPassword() {
     <Box maxWidth="400px" margin="auto" mt={8}>
       <VStack spacing={4} align="stretch">
         <Heading as="h1" size="xl" textAlign="center">
-          Reset Password
+          Forgot Password
         </Heading>
         <Text fontSize="lg" textAlign="center">
-          Enter your new password
+          Enter your email to receive password reset instructions
         </Text>
         <form onSubmit={handleSubmit}>
           <VStack spacing={4}>
             <FormControl isRequired>
-              <FormLabel>New Password</FormLabel>
+              <FormLabel>Email</FormLabel>
               <Input
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-              />
-            </FormControl>
-            <FormControl isRequired>
-              <FormLabel>Confirm New Password</FormLabel>
-              <Input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </FormControl>
             <Button
@@ -109,7 +88,7 @@ function ResetPassword() {
               width="full"
               isLoading={isLoading}
             >
-              Reset Password
+              Send Reset Link
             </Button>
           </VStack>
         </form>
@@ -118,4 +97,4 @@ function ResetPassword() {
   );
 }
 
-export default ResetPassword;
+export default ForgotPassword;
