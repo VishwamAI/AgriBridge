@@ -9,6 +9,8 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    env:
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
 
     steps:
     - uses: actions/checkout@v2
@@ -34,8 +36,6 @@ jobs:
         poetry run pip install pytest
 
     - name: Run backend tests
-      env:
-        MONGODB_URI: ${{ secrets.MONGODB_URI }}
       run: |
         cd backend
         poetry run pytest
