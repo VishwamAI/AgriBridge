@@ -1,5 +1,5 @@
-import '@testing-library/jest-dom';
-import { expect, jest, test } from '@jest/globals';
+require('@testing-library/jest-dom');
+const { expect, test } = require('@jest/globals');
 
 global.matchMedia = global.matchMedia || function() {
   return {
@@ -10,5 +10,4 @@ global.matchMedia = global.matchMedia || function() {
 };
 
 global.expect = expect;
-global.jest = jest;
 global.test = test;
