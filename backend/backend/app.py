@@ -233,7 +233,8 @@ async def healthz():
 # Environment variable for database connection
 MONGODB_URI = os.getenv("MONGODB_URI")
 if not MONGODB_URI:
-    logger.warning("MONGODB_URI is not set in the environment variables")
+    logger.error("MONGODB_URI is not set in the environment variables")
+    raise ValueError("MONGODB_URI environment variable is not set")
 
 # Database connection function
 def get_db_connection():
@@ -247,6 +248,9 @@ def get_db_connection():
         error_message = f"Unable to connect to the database: {str(e)}"
         logger.error(f"Database connection error: {error_message}")
         logger.error(f"Connection details: URI={MONGODB_URI}, Timeout=5000ms")
+        # Log additional details about the exception
+        logger.error(f"Exception type: {type(e).__name__}")
+        logger.error(f"Exception args: {e.args}")
         raise DatabaseError(error_message, status_code=503)
 
 # Example usage of database connection
