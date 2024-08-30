@@ -16,6 +16,12 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: '14.x'
+    - name: Debug - List directory contents
+      run: |
+        echo "Contents of src directory:"
+        ls -R src
+        echo "Contents of src/growers-gate-frontend directory:"
+        ls -R src/growers-gate-frontend
     - name: Install dependencies
       run: |
         cd src/growers-gate-frontend
