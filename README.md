@@ -1,6 +1,6 @@
 # Growers Gate
 
-Growers Gate is a web and mobile application platform designed to connect farmers directly with consumers, allowing them to sell vegetables and other products with home delivery options. It aims to streamline the farm-to-table process, ensuring fresh produce delivery while supporting local growers.
+Growers Gate is a web application platform designed to connect farmers directly with consumers, allowing them to sell vegetables and other products with home delivery options. It aims to streamline the farm-to-table process, ensuring fresh produce delivery while supporting local growers.
 
 ## Table of Contents
 - [Project Overview](#project-overview)
@@ -8,6 +8,7 @@ Growers Gate is a web and mobile application platform designed to connect farmer
 - [Technology Stack](#technology-stack)
 - [Installation and Setup](#installation-and-setup)
 - [Usage](#usage)
+- [API Endpoints](#api-endpoints)
 - [File Structure](#file-structure)
 - [Contributing](#contributing)
 - [License](#license)
@@ -19,123 +20,146 @@ Growers Gate empowers farmers by offering them a platform to list their products
 
 ## Features
 
-- **Dashboard**: An overview for farmers to see their products, sales, and earnings.
+- **Dashboard**: An overview for users to see their products, sales, and earnings.
 - **Products Management**: Farmers can add, edit, or remove products from their listings.
 - **Cart**: Consumers can add products to their cart for purchase.
 - **Transactions**: Keep track of orders, payment history, and more.
 - **Delivery Management**: An interface for tracking and managing delivery schedules and orders.
-- **Login and Registration**: Easy signup and login for both farmers and consumers, including social login options (Google, Microsoft, Apple).
+- **Login and Registration**: Easy signup and login for both farmers and consumers.
 - **User Roles**: Separate interfaces for farmers and consumers with tailored functionalities.
 - **Responsive Design**: Mobile-friendly for ease of use on both desktop and mobile devices.
 
 ## Technology Stack
 
 **Frontend**:
-- React.js (JavaScript Library for building user interfaces)
-- CSS/SCSS (Styling)
-- Parcel (Bundler)
+- React.js
+- CSS Modules
+- Chart.js for data visualization
+- React Router for navigation
 
 **Backend**:
-- Node.js (Runtime environment)
-- Express.js (Web framework for Node.js)
-- MongoDB (NoSQL database for storing product, user, and transaction data)
+- Node.js
+- Express.js
+- MongoDB for data storage
+- JWT for authentication
+- Bcrypt for password hashing
+- Speakeasy for 2FA
 
 **Other Tools**:
 - Git (Version control)
-- NPM/Yarn (Package managers)
-- OAuth (Social login integration for Google, Microsoft, Apple)
+- NPM (Package manager)
+- Dotenv for environment variable management
 
 ## Installation and Setup
 
 ### Prerequisites
 
-Make sure you have the following installed:
+Ensure you have the following installed:
 - Node.js (v14.x or higher)
-- npm or yarn (package managers)
-- MongoDB (Database)
+- npm (comes with Node.js)
+- MongoDB (v4.x or higher)
 - Git
 
 ### Steps to Setup
 
 1. **Clone the repository**:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/yourusername/growers-gate.git
    cd growers-gate
    ```
 
 2. **Install dependencies**:
    ```bash
+   # Install frontend dependencies
+   cd src/growers-gate-frontend
    npm install
-   # or
-   yarn install
+
+   # Install backend dependencies
+   cd ../growers-gate-backend
+   npm install
    ```
 
-3. **Create a `.env` file**:
-   Create a `.env` file in the root of your project with the following variables:
+3. **Set up environment variables**:
+   Create a `.env` file in the `src/growers-gate-backend` directory with the following:
    ```
-   MONGODB_URI=mongodb://localhost:27017/growersgate
-   PORT=5000
-   REACT_APP_API_URL=http://localhost:5000/api
+   MONGODB_URI=mongodb://localhost:27017/growers_gate
+   JWT_SECRET=your_jwt_secret_here
+   PORT=3001
    ```
 
-4. **Start the server**:
+4. **Start MongoDB**:
+   Ensure your MongoDB server is running.
+
+5. **Start the backend server**:
    ```bash
-   npm run server
-   ```
-
-5. **Run the frontend**:
-   Open another terminal tab or window, and start the React development server:
-   ```bash
+   cd src/growers-gate-backend
    npm start
    ```
 
-6. **Visit the Application**:
-   Go to `http://localhost:3000` to see the app running.
+6. **Start the frontend development server**:
+   Open a new terminal window:
+   ```bash
+   cd src/growers-gate-frontend
+   npm start
+   ```
+
+7. **Access the Application**:
+   Open your browser and go to `http://localhost:3000`
 
 ## Usage
 
-- **Farmers** can log in, add their products, and manage transactions and deliveries.
-- **Consumers** can browse available products, add them to their cart, and check out for home delivery.
+- **Registration**: Users can sign up as either farmers or consumers.
+- **Login**: Existing users can log in to access their dashboard.
+- **Dashboard**:
+  - Farmers can manage their products, view sales, and handle orders.
+  - Consumers can browse products, add items to cart, and place orders.
+- **Products**: Farmers can add, edit, or remove products from their listings.
+- **Cart**: Consumers can review their cart and proceed to checkout.
+- **Transactions**: Users can view their order history and transaction details.
+
+## API Endpoints
+
+- `POST /register`: User registration
+- `POST /login`: User login
+- `POST /verify-2fa`: Two-factor authentication verification
+- `GET /dashboard`: Fetch dashboard data (protected route)
+
+For detailed API documentation, refer to the backend code or set up Swagger documentation.
 
 ## File Structure
 
 ```
 growers-gate/
-├── public/
 ├── src/
-│   ├── components/
-│   ├── pages/
-│   ├── services/
-│   ├── utils/
-│   ├── App.js
-│   ├── index.js
-│   ├── ...
-├── server/
-│   ├── models/
-│   ├── routes/
-│   ├── controllers/
-│   ├── server.js
-├── .env
-├── package.json
+│   ├── growers-gate-frontend/
+│   │   ├── public/
+│   │   ├── src/
+│   │   │   ├── components/
+│   │   │   ├── App.js
+│   │   │   ├── index.js
+│   │   │   └── ...
+│   │   └── package.json
+│   └── growers-gate-backend/
+│       ├── api.js
+│       ├── .env
+│       └── package.json
 └── README.md
 ```
 
-- **`src/components`**: Reusable UI components (buttons, forms, etc.).
-- **`src/pages`**: Different pages such as Dashboard, Products, Cart, and Transactions.
-- **`src/services`**: API services for communicating with the backend.
-- **`server/`**: Backend server code handling API requests and database operations.
+- `src/growers-gate-frontend/`: React frontend application
+- `src/growers-gate-backend/`: Node.js/Express backend application
+- `src/growers-gate-frontend/src/components/`: React components (Dashboard, LoginSignup, etc.)
+- `src/growers-gate-backend/api.js`: Main backend file with API routes and MongoDB connection
 
 ## Contributing
 
-If you would like to contribute to Growers Gate, please follow these steps:
+Contributions to Growers Gate are welcome! Please follow these steps:
 
-1. Fork the repository.
+1. Fork the repository
 2. Create a new branch: `git checkout -b feature/your-feature-name`
-3. Commit your changes: `git commit -m 'Add some feature'`
+3. Make your changes and commit them: `git commit -m 'Add some feature'`
 4. Push to the branch: `git push origin feature/your-feature-name`
-5. Submit a pull request.
-
-All contributions, suggestions, and improvements are welcome!
+5. Submit a pull request
 
 ## License
 
@@ -143,7 +167,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
-For any queries, feel free to reach out to us:
+For any queries or suggestions, please contact:
 - **Project Lead**: Kasinadh Sarma
-- Email: kasinadh@example.com
-
+- **Email**: kasinadhsarma@gmail.com
