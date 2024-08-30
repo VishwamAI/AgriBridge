@@ -1,0 +1,70 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14.x'
+    - name: Install dependencies
+      run: |
+        cd src/growers-gate-frontend
+        npm ci
+    - name: Build frontend
+      run: |
+        cd src/growers-gate-frontend
+        npm run build
+    - name: Run frontend tests
+      run: |
+        cd src/growers-gate-frontend
+        npm test
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    - name: Install backend dependencies
+      run: |
+        cd src/growers-gate-backend
+        pip install -r requirements.txt
+    - name: Run backend tests
+      run: |
+        cd src/growers-gate-backend
+        python -m pytest
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Deploy Frontend to Netlify
+      uses: nwtgck/actions-netlify@v1.2
+      with:
+        publish-dir: './src/growers-gate-frontend/build'
+        production-branch: main
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        deploy-message: "Deploy from GitHub Actions"
+        enable-pull-request-comment: false
+        enable-commit-comment: true
+        overwrites-pull-request-comment: true
+      env:
+        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+    - name: Deploy Backend to Heroku
+      uses: akhileshns/heroku-deploy@v3.12.12
+      with:
+        heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+        heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+        heroku_email: ${{ secrets.HEROKU_EMAIL }}
+        appdir: "src/growers-gate-backend"
