@@ -1,0 +1,59 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14.x'
+    - name: Install dependencies
+      run: |
+        cd src/growers-gate-frontend
+        npm ci
+    - name: Build frontend
+      run: |
+        cd src/growers-gate-frontend
+        npm run build
+    - name: Run frontend tests
+      run: |
+        cd src/growers-gate-frontend
+        npm test
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    - name: Install backend dependencies
+      run: |
+        cd src/growers-gate-backend
+        pip install -r requirements.txt
+    - name: Run backend tests
+      run: |
+        cd src/growers-gate-backend
+        python -m pytest
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Deploy to production
+      run: |
+        echo "Add deployment steps here"
+        # Example: Deploy to Heroku
+        # - uses: akhileshns/heroku-deploy@v3.12.12
+        #   with:
+        #     heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+        #     heroku_app_name: "your-app-name"
+        #     heroku_email: "your-email@example.com"
