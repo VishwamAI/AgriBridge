@@ -1,0 +1,87 @@
+.loginSignup {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  font-size: 2rem;
+  color: #333;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup {
+  margin-bottom: 1rem;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #555;
+}
+
+.input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.submitButton {
+  background-color: #4CAF50;
+  color: white;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.submitButton:hover {
+  background-color: #45a049;
+}
+
+.switchMode {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.switchButton {
+  background: none;
+  border: none;
+  color: #4CAF50;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.backLink {
+  display: block;
+  text-align: center;
+  margin-top: 1rem;
+  color: #666;
+  text-decoration: none;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+  .loginSignup {
+    max-width: 100%;
+    margin: 1rem;
+    padding: 1rem;
+  }
+}
