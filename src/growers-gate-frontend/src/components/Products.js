@@ -20,8 +20,4 @@ function Products() {
   );
 }
 
-<<<<<<< documentation-updates
 export default Products;
-=======
-export default Products;
->>>>>>> main
