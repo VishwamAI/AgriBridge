@@ -2,9 +2,9 @@ name: CI/CD
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, documentation-updates ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, documentation-updates ]
 
 jobs:
   build:
@@ -15,7 +15,13 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '14.x'
+        node-version: '18.x'
+    - name: Debug - List directory contents
+      run: |
+        echo "Contents of src directory:"
+        ls -R src
+        echo "Contents of src/growers-gate-frontend directory:"
+        ls -R src/growers-gate-frontend
     - name: Install dependencies
       run: |
         cd src/growers-gate-frontend
