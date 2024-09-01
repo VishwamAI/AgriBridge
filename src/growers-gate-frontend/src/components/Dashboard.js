@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaHome, FaChartBar, FaShoppingCart, FaBox, FaTruck, FaSearch, FaUser, FaCog, FaSignOutAlt } from 'react-icons/fa';
-import styles from './Dashboard.module.css';
 
 // Import components for different dashboard sections
 import DashboardOverview from './DashboardOverview';
@@ -88,57 +87,81 @@ function Dashboard() {
 
   // Render the Dashboard component
   return (
-    <div className={styles.dashboard}>
+    <div className="flex h-screen bg-gray-100">
       {/* Sidebar navigation */}
-      <div className={styles.sidebar}>
-        <nav className={styles.sidebarNav}>
+      <div className="w-64 bg-white shadow-md">
+        <nav className="mt-5">
           <ul>
             {/* Navigation links for different sections */}
             {/* Each link updates the activeTab state when clicked */}
-            <li><Link to="#" onClick={() => setActiveTab('dashboard')} className={activeTab === 'dashboard' ? styles.active : ''}><FaHome className={styles.icon} /> Dashboard</Link></li>
-            <li><Link to="#" onClick={() => setActiveTab('transactions')} className={activeTab === 'transactions' ? styles.active : ''}><FaChartBar className={styles.icon} /> Transactions</Link></li>
-            <li><Link to="#" onClick={() => setActiveTab('cart')} className={activeTab === 'cart' ? styles.active : ''}><FaShoppingCart className={styles.icon} /> Cart</Link></li>
-            <li><Link to="#" onClick={() => setActiveTab('products')} className={activeTab === 'products' ? styles.active : ''}><FaBox className={styles.icon} /> Products</Link></li>
-            <li><Link to="#" onClick={() => setActiveTab('delivery')} className={activeTab === 'delivery' ? styles.active : ''}><FaTruck className={styles.icon} /> Delivery</Link></li>
+            <li className="mb-2">
+              <Link to="#" onClick={() => setActiveTab('dashboard')} className={`flex items-center px-4 py-2 text-gray-700 ${activeTab === 'dashboard' ? 'bg-green-500 text-white' : 'hover:bg-green-100'}`}>
+                <FaHome className="mr-3" /> Dashboard
+              </Link>
+            </li>
+            <li className="mb-2">
+              <Link to="#" onClick={() => setActiveTab('transactions')} className={`flex items-center px-4 py-2 text-gray-700 ${activeTab === 'transactions' ? 'bg-green-500 text-white' : 'hover:bg-green-100'}`}>
+                <FaChartBar className="mr-3" /> Transactions
+              </Link>
+            </li>
+            <li className="mb-2">
+              <Link to="#" onClick={() => setActiveTab('cart')} className={`flex items-center px-4 py-2 text-gray-700 ${activeTab === 'cart' ? 'bg-green-500 text-white' : 'hover:bg-green-100'}`}>
+                <FaShoppingCart className="mr-3" /> Cart
+              </Link>
+            </li>
+            <li className="mb-2">
+              <Link to="#" onClick={() => setActiveTab('products')} className={`flex items-center px-4 py-2 text-gray-700 ${activeTab === 'products' ? 'bg-green-500 text-white' : 'hover:bg-green-100'}`}>
+                <FaBox className="mr-3" /> Products
+              </Link>
+            </li>
+            <li className="mb-2">
+              <Link to="#" onClick={() => setActiveTab('delivery')} className={`flex items-center px-4 py-2 text-gray-700 ${activeTab === 'delivery' ? 'bg-green-500 text-white' : 'hover:bg-green-100'}`}>
+                <FaTruck className="mr-3" /> Delivery
+              </Link>
+            </li>
           </ul>
         </nav>
       </div>
       {/* Main content area */}
-      <div className={styles.mainContent}>
+      <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header with search bar and user profile */}
-        <div className={styles.header}>
-          {/* Search bar */}
-          <div className={styles.searchBar}>
-            <input type="text" placeholder="Search..." />
-            <FaSearch className={styles.searchIcon} />
-          </div>
-          {/* User profile and circular menu */}
-          <div className={styles.userProfileContainer}>
-            {/* User profile icon that toggles the circular menu when clicked */}
-            <div className={styles.userProfile} onClick={toggleCircularMenu}>
-              <FaUser />
+        <header className="bg-white shadow-md">
+          <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            {/* Search bar */}
+            <div className="relative">
+              <input type="text" placeholder="Search..." className="w-64 pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500" />
+              <FaSearch className="absolute left-3 top-3 text-gray-400" />
             </div>
-            {/* Circular menu for user actions, only shown when showCircularMenu is true */}
-            {showCircularMenu && (
-              <div className={styles.circularMenu}>
-                {/* Each menu item calls handleMenuItemClick when clicked */}
-                <div className={`${styles.menuItem} ${activeMenuItem === 'profile' ? styles.active : ''}`} onClick={() => handleMenuItemClick('profile')}>
-                  <FaUser /> Profile
-                </div>
-                <div className={`${styles.menuItem} ${activeMenuItem === 'settings' ? styles.active : ''}`} onClick={() => handleMenuItemClick('settings')}>
-                  <FaCog /> Settings
-                </div>
-                <div className={`${styles.menuItem} ${activeMenuItem === 'logout' ? styles.active : ''}`} onClick={() => handleMenuItemClick('logout')}>
-                  <FaSignOutAlt /> Logout
-                </div>
+            {/* User profile and circular menu */}
+            <div className="relative">
+              {/* User profile icon that toggles the circular menu when clicked */}
+              <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white cursor-pointer" onClick={toggleCircularMenu}>
+                <FaUser />
               </div>
-            )}
+              {/* Circular menu for user actions, only shown when showCircularMenu is true */}
+              {showCircularMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md overflow-hidden shadow-xl z-10">
+                  {/* Each menu item calls handleMenuItemClick when clicked */}
+                  <div className={`px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer ${activeMenuItem === 'profile' ? 'bg-gray-100' : ''}`} onClick={() => handleMenuItemClick('profile')}>
+                    <FaUser className="inline-block mr-2" /> Profile
+                  </div>
+                  <div className={`px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer ${activeMenuItem === 'settings' ? 'bg-gray-100' : ''}`} onClick={() => handleMenuItemClick('settings')}>
+                    <FaCog className="inline-block mr-2" /> Settings
+                  </div>
+                  <div className={`px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer ${activeMenuItem === 'logout' ? 'bg-gray-100' : ''}`} onClick={() => handleMenuItemClick('logout')}>
+                    <FaSignOutAlt className="inline-block mr-2" /> Logout
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        </header>
         {/* Content area for rendering active tab content */}
-        <div className={styles.contentArea}>
-          {renderContent()}
-        </div>
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
+          <div className="container mx-auto px-6 py-8">
+            {renderContent()}
+          </div>
+        </main>
       </div>
     </div>
   );
