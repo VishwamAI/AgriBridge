@@ -6,6 +6,10 @@ import Signup from './components/Signup';
 import Dashboard from './components/Dashboard';
 import ForgotPassword from './components/ForgotPassword';
 import TwoFAManagement from './components/TwoFAManagement';
+import FarmerDashboard from './components/FarmerDashboard';
+import UserDashboard from './components/UserDashboard';
+import AdminDashboard from './components/AdminDashboard';
+import CommunityDashboard from './components/CommunityDashboard';
 
 function App() {
   return (
@@ -18,6 +22,10 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/2fa-management" element={<TwoFAManagement />} />
+          <Route path="/farmer-dashboard" element={<FarmerDashboard />} />
+          <Route path="/user-dashboard" element={<UserDashboard />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/community-dashboard" element={<CommunityDashboard />} />
         </Routes>
       </div>
     </Router>
