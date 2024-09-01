@@ -48,13 +48,13 @@
 - [ ] Add form validation and error handling
 
 ## Dashboard Components
-- [ ] Farmer Dashboard
+- [x] Farmer Dashboard
   - [x] Basic product management
   - [ ] Order management
   - [ ] Profile update
   - [ ] Support request
   - [ ] Analytics and insights
-- [ ] User Dashboard
+- [x] User Dashboard
   - [ ] Profile management
   - [ ] Order management
   - [x] Basic cart management
