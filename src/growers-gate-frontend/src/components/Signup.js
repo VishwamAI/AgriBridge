@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import axios from 'axios';
 
 function Signup() {
   const [name, setName] = useState('');
@@ -11,11 +12,34 @@ function Signup() {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [twoFASetup, setTwoFASetup] = useState(null);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Implement signup logic
-    console.log('Signup submitted', { name, email, password, userType, termsAccepted });
+    if (password !== confirmPassword) {
+      setError("Passwords don't match");
+      return;
+    }
+    setError('');
+    setLoading(true);
+    try {
+      const response = await axios.post('http://localhost:3001/register', {
+        firstName: name.split(' ')[0],
+        lastName: name.split(' ').slice(1).join(' '),
+        email,
+        password,
+        userType
+      });
+      setTwoFASetup(response.data.twoFactorSetup);
+      // TODO: Handle 2FA setup (show QR code and secret)
+    } catch (error) {
+      setError(error.response?.data?.message || 'An error occurred during signup');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -26,6 +50,7 @@ function Signup() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {error && <div className="mb-4 text-red-600">{error}</div>}
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700">
@@ -150,11 +175,23 @@ function Signup() {
               <button
                 type="submit"
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                disabled={loading}
               >
-                Sign up
+                {loading ? 'Signing up...' : 'Sign up'}
               </button>
             </div>
           </form>
+
+          {twoFASetup && (
+            <div className="mt-6">
+              <h3 className="text-lg font-medium text-gray-900">Two-Factor Authentication Setup</h3>
+              <img src={twoFASetup.qrCodeUrl} alt="2FA QR Code" className="mt-2" />
+              <p className="mt-2 text-sm text-gray-600">
+                Scan this QR code with your authenticator app to set up 2FA.
+                Your secret key is: {twoFASetup.secret}
+              </p>
+            </div>
+          )}
 
           <div className="mt-6">
             <div className="relative">

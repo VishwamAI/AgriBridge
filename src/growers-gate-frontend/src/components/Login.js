@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import axios from 'axios';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -9,19 +10,78 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [twoFACode, setTwoFACode] = useState('');
   const [showTwoFA, setShowTwoFA] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Implement login logic
-    console.log('Login submitted', { email, password, rememberMe });
-    // After successful login, show 2FA input
-    setShowTwoFA(true);
+    setError('');
+    setLoading(true);
+    try {
+      const response = await axios.post('http://localhost:3001/login', { email, password });
+      if (response.status === 202) {
+        // 2FA required
+        setShowTwoFA(true);
+      } else if (response.status === 200) {
+        // Login successful
+        localStorage.setItem('token', response.data.token);
+        const userType = response.data.userType;
+        switch (userType) {
+          case 'farmer':
+            navigate('/farmer-dashboard');
+            break;
+          case 'customer':
+            navigate('/user-dashboard');
+            break;
+          case 'admin':
+            navigate('/admin-dashboard');
+            break;
+          case 'community':
+            navigate('/community-dashboard');
+            break;
+          default:
+            setError('Unknown user type');
+        }
+      }
+    } catch (error) {
+      setError(error.response?.data?.message || 'An error occurred during login');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleTwoFASubmit = (e) => {
+  const handleTwoFASubmit = async (e) => {
     e.preventDefault();
-    // TODO: Implement 2FA verification logic
-    console.log('2FA submitted', { twoFACode });
+    setError('');
+    setLoading(true);
+    try {
+      const response = await axios.post('http://localhost:3001/verify-2fa', { token: twoFACode });
+      if (response.status === 200) {
+        localStorage.setItem('token', response.data.token);
+        const userRole = response.data.role;
+        switch (userRole) {
+          case 'farmer':
+            navigate('/farmer-dashboard');
+            break;
+          case 'user':
+            navigate('/user-dashboard');
+            break;
+          case 'admin':
+            navigate('/admin-dashboard');
+            break;
+          case 'community':
+            navigate('/community-dashboard');
+            break;
+          default:
+            setError('Unknown user role');
+        }
+      }
+    } catch (error) {
+      setError(error.response?.data?.message || 'Invalid 2FA code');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -32,6 +92,7 @@ function Login() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {error && <div className="mb-4 text-red-600">{error}</div>}
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -102,8 +163,9 @@ function Login() {
               <button
                 type="submit"
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                disabled={loading}
               >
-                Sign in
+                {loading ? 'Signing in...' : 'Sign in'}
               </button>
             </div>
           </form>
@@ -130,8 +192,9 @@ function Login() {
                 <button
                   type="submit"
                   className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                  disabled={loading}
                 >
-                  Verify
+                  {loading ? 'Verifying...' : 'Verify'}
                 </button>
               </div>
             </form>
