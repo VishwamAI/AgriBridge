@@ -151,6 +151,20 @@ growers-gate/
 - `src/growers-gate-frontend/src/components/`: React components (Dashboard, LoginSignup, etc.)
 - `src/growers-gate-backend/api.js`: Main backend file with API routes and MongoDB connection
 
+## CI/CD Workflow
+
+Our CI/CD pipeline has been significantly improved to ensure code quality and streamline the deployment process:
+
+- **Linting**: Automated code style and quality checks for both frontend and backend.
+- **Caching**: Implemented caching for node modules and pip packages to speed up builds.
+- **Parallel Execution**: Frontend and backend tests run concurrently for faster feedback.
+- **Code Coverage**: Integrated with Codecov for detailed code coverage reporting.
+- **Performance Testing**: Lighthouse CI runs performance audits on every build.
+- **Deployment**: Automated deployment to Netlify (frontend) and Heroku (backend) on successful builds.
+- **Notifications**: Slack notifications for deployment status updates.
+
+For more details, see the `.github/workflows/ci.yml` file in the repository.
+
 ## Contributing
 
 Contributions to Growers Gate are welcome! Please follow these steps:
