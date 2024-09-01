@@ -21,10 +21,6 @@
   - [x] "Forgot password" link
   - [x] Submit button
   - [x] Option to switch to signup page
-  - [ ] 2FA integration (partially implemented)
-    - [x] 2FA verification input field
-    - [ ] 2FA setup process
-    - [ ] Backup codes generation and management
 - [x] Signup page
   - [x] Name input (Full Name)
   - [x] Email input
@@ -34,28 +30,34 @@
   - [x] Terms and conditions checkbox
   - [x] Submit button
   - [x] Option to switch to login page
-  - [ ] 2FA setup option (to be implemented)
 - [x] Forgot password page
   - [x] Email input
   - [x] Submit button
   - [x] Instructions for password reset process
-- [x] 2FA Management page (basic implementation)
-  - [x] Enable/disable 2FA
-  - [x] QR code placeholder for app-based 2FA
-  - [x] Backup codes management (generation and display)
 - [ ] Integrate authentication components with backend
-- [ ] Implement actual 2FA functionality (SMS, app-based, or email)
 - [ ] Add form validation and error handling
+
+## 2FA Implementation
+- [ ] Implement 2FA in profile management
+  - [ ] 2FA setup process
+  - [ ] QR code generation for app-based 2FA
+  - [ ] Backup codes generation and management
+  - [ ] Enable/disable 2FA option
+- [ ] Implement 2FA in development management (if applicable)
+- [ ] Implement actual 2FA functionality (SMS, app-based, or email)
+- [ ] Add user education about 2FA setup in profile
 
 ## Dashboard Components
 - [x] Farmer Dashboard
   - [x] Basic product management
   - [ ] Order management
   - [ ] Profile update
+    - [ ] Implement 2FA setup and management
   - [ ] Support request
   - [ ] Analytics and insights
 - [x] User Dashboard
   - [ ] Profile management
+    - [ ] Implement 2FA setup and management
   - [ ] Order management
   - [x] Basic cart management
   - [ ] Review management
@@ -65,10 +67,12 @@
   - [ ] Product management (all listings)
   - [ ] Order management (all orders)
   - [ ] User management
+    - [ ] Implement 2FA management for all users
   - [ ] Support management
   - [ ] Analytics and reporting
 - [ ] Community Dashboard
   - [ ] Profile management
+    - [ ] Implement 2FA setup and management
   - [ ] Product management
   - [ ] Order management
   - [ ] Cart management
@@ -76,6 +80,25 @@
   - [ ] Payment management
   - [ ] Review management
   - [ ] Community forums or discussion boards
+- [x] Rider Dashboard
+  - [x] Order Management
+    - [x] View current and upcoming delivery assignments
+    - [x] Update delivery status
+    - [x] Access delivery details
+    - [ ] Implement OTP verification for order status updates
+  - [x] Profile Management
+    - [x] Update personal information
+    - [ ] View and manage payment details
+  - [x] Support
+    - [x] Request assistance
+    - [x] Report issues
+    - [ ] Access knowledge base or FAQ
+  - [x] Notifications
+    - [x] Receive real-time updates about new orders, changes, or issues
+  - [x] Analytics
+    - [x] View performance metrics (e.g., completed deliveries, average delivery time)
+  - [ ] Integrate with backend API
+  - [ ] Implement error handling and edge cases
 
 ## Navbar Functionality
 - [x] Implement responsive design
@@ -83,6 +106,22 @@
 - [ ] Integrate notifications system
 - [ ] User profile quick access
 - [ ] Dynamic menu based on user role
+
+## OTP Implementation
+- [x] Implement OTP system for rider authentication during order status updates
+  - [x] Add OTP verification component in RiderDashboard
+  - [x] Integrate OTP verification into OrderManagement component
+  - [ ] Implement actual OTP generation and delivery (SMS or email)
+  - [ ] Connect OTP verification to backend API
+- [ ] Implement OTP system for admin authentication during food transfer
+  - [ ] Generate OTP for admin when collecting or transferring parcels
+  - [ ] Verify OTP entered by admin
+  - [ ] Integrate OTP verification with order tracking system
+- [ ] Add OTP verification step in the food transfer process for both users and farmers
+- [ ] Implement error handling and retry mechanism for OTP verification
+- [ ] Enhance security measures for OTP system
+- [ ] Test OTP system thoroughly
+- [ ] Add user education about OTP usage in the app
 
 ## Login System
 - [ ] Implement role-based access control

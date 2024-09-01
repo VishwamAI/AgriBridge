@@ -27,8 +27,11 @@ function Home() {
       <section className="bg-green-500 text-white py-20">
         <div className="container mx-auto text-center">
           <h1 className="text-4xl font-bold mb-4">Welcome to Growers Gate</h1>
-          <p className="text-xl mb-8">
+          <p className="text-xl mb-4">
             Connect directly with local farmers and get fresh produce delivered to your doorstep.
+          </p>
+          <p className="text-lg mb-8">
+            As a nonprofit organization, we're committed to improving O2 levels and creating a sustainable future for agriculture.
           </p>
           <div className="space-x-4">
             <Link to="/signup" className="bg-white text-green-600 px-6 py-3 rounded-full font-semibold hover:bg-green-100">Sign Up</Link>
@@ -62,20 +65,20 @@ function Home() {
         <div className="container mx-auto text-center">
           <h2 className="text-3xl font-bold mb-8">About Growers Gate</h2>
           <p className="text-xl mb-8">
-            Growers Gate is on a mission to revolutionize the way people access fresh, local produce. We connect consumers directly with farmers, ensuring fair prices and supporting local agriculture.
+            Growers Gate is on a mission to revolutionize the way people access fresh, local produce. We connect consumers directly with farmers, ensuring fair prices and supporting local agriculture. Our innovative approach includes flood mitigation techniques using AI and ongoing developments in agricultural innovation.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white p-6 rounded-lg shadow-md">
               <h3 className="text-xl font-semibold mb-4">Our Mission</h3>
-              <p>To create a sustainable food ecosystem that benefits both farmers and consumers.</p>
+              <p>To create a sustainable food ecosystem that benefits both farmers and consumers while improving environmental conditions.</p>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md">
               <h3 className="text-xl font-semibold mb-4">Our Vision</h3>
-              <p>A world where everyone has access to fresh, locally-sourced produce at fair prices.</p>
+              <p>A world where everyone has access to fresh, locally-sourced produce at fair prices, supported by cutting-edge agricultural technology.</p>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-xl font-semibold mb-4">Our Values</h3>
-              <p>Sustainability, transparency, community support, and innovation in agriculture.</p>
+              <h3 className="text-xl font-semibold mb-4">Our Approach</h3>
+              <p>We leverage AI for flood mitigation, focus on agricultural innovation, and collaborate with the VishwamAI opensource GitHub community to drive sustainable farming practices.</p>
             </div>
           </div>
         </div>
@@ -170,6 +173,7 @@ function Home() {
             <div>
               <h3 className="text-xl font-semibold mb-4">Growers Gate</h3>
               <p>Connecting farmers and consumers for a sustainable future.</p>
+              <p className="mt-2 text-sm">A nonprofit organization</p>
             </div>
             <div>
               <h3 className="text-xl font-semibold mb-4">Quick Links</h3>
@@ -196,6 +200,8 @@ function Home() {
           </div>
           <div className="mt-8 text-center">
             <p>&copy; 2023 Growers Gate. All rights reserved.</p>
+            <p className="mt-2 text-sm">Developed by the VishwamAI opensource GitHub community</p>
+            <p className="mt-1 text-sm">Special thanks to kasinadhsarma for their contributions</p>
           </div>
         </div>
       </footer>

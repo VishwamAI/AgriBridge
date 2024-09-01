@@ -12,6 +12,7 @@ const speakeasy = require('speakeasy');
 const qrcode = require('qrcode');
 const cors = require('cors');
 const { MongoClient } = require('mongodb');
+const crypto = require('crypto');
 require('dotenv').config();
 
 const app = express();
@@ -294,6 +295,40 @@ app.get('/dashboard', authenticateJWT, (req, res) => {
       break;
     default:
       res.status(403).json({ message: 'Access denied' });
+  }
+});
+
+/**
+ * Generate OTP for Rider Authentication
+ * @route POST /generate-rider-otp
+ * @security JWT
+ * @param {string} orderId.body.required - Order ID for which OTP is generated
+ * @returns {Object} 200 - OTP generated successfully
+ * @returns {Object} 400 - Bad request
+ * @returns {Object} 401 - Unauthorized
+ */
+app.post('/generate-rider-otp', authenticateJWT, async (req, res) => {
+  try {
+    const { orderId } = req.body;
+    if (!orderId) {
+      return res.status(400).json({ message: 'Order ID is required' });
+    }
+
+    const otp = speakeasy.totp({
+      secret: process.env.OTP_SECRET,
+      encoding: 'base32'
+    });
+
+    // Store OTP in the database associated with the order
+    await db.collection('orders').updateOne(
+      { _id: orderId },
+      { $set: { riderOtp: otp, otpCreatedAt: new Date() } }
+    );
+
+    res.json({ message: 'OTP generated successfully', otp });
+  } catch (error) {
+    console.error('Error generating OTP:', error);
+    res.status(500).json({ message: 'Error generating OTP' });
   }
 });
 

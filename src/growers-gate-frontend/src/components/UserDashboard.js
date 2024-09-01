@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FaUser, FaShoppingCart, FaClipboardList, FaStar, FaCreditCard, FaHeart } from 'react-icons/fa';
+import ProfileManagement from './ProfileManagement';
 
 function UserDashboard() {
   const [activeTab, setActiveTab] = useState('profile');
@@ -89,8 +90,7 @@ function UserDashboard() {
   );
 }
 
-// Placeholder components for each section
-const ProfileManagement = () => <div>Profile Management Component</div>;
+// Placeholder components for other sections
 const OrderManagement = () => <div>Order Management Component</div>;
 const CartManagement = () => <div>Cart Management Component</div>;
 const ReviewManagement = () => <div>Review Management Component</div>;

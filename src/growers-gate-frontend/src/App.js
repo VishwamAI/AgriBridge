@@ -9,6 +9,7 @@ import FarmerDashboard from './components/FarmerDashboard';
 import UserDashboard from './components/UserDashboard';
 import AdminDashboard from './components/AdminDashboard';
 import CommunityDashboard from './components/CommunityDashboard';
+import RiderDashboard from './components/RiderDashboard';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/user-dashboard" element={<UserDashboard />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/community-dashboard" element={<CommunityDashboard />} />
+          <Route path="/rider-dashboard" element={<RiderDashboard />} />
         </Routes>
       </div>
     </Router>
