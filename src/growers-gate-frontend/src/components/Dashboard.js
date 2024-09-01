@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaHome, FaChartBar, FaShoppingCart, FaBox, FaTruck, FaSearch, FaUser, FaCog, FaSignOutAlt } from 'react-icons/fa';
+import { FaHome, FaChartBar, FaShoppingCart, FaBox, FaTruck, FaSearch, FaUser, FaCog, FaSignOutAlt, FaUsers, FaChartLine, FaDollarSign, FaUserPlus, FaShoppingBasket } from 'react-icons/fa';
 
 // Import components for different dashboard sections
 import DashboardOverview from './DashboardOverview';
@@ -8,6 +8,8 @@ import Transactions from './Transactions';
 import Cart from './Cart';
 import Products from './Products';
 import Delivery from './Delivery';
+import Analytics from './Analytics';
+import UserManagement from './UserManagement';
 
 /**
  * Dashboard component
@@ -24,6 +26,36 @@ function Dashboard() {
   const [showCircularMenu, setShowCircularMenu] = useState(false);
   // State for tracking the active item in the circular menu
   const [activeMenuItem, setActiveMenuItem] = useState(null);
+  // State for analytics data
+  const [analyticsData, setAnalyticsData] = useState(null);
+  // State for user list
+  const [userList, setUserList] = useState([]);
+
+  useEffect(() => {
+    // Fetch analytics data
+    const fetchAnalyticsData = async () => {
+      // TODO: Replace with actual API call
+      const mockData = {
+        totalSales: 10000,
+        newUsers: 50,
+        activeOrders: 25
+      };
+      setAnalyticsData(mockData);
+    };
+
+    // Fetch user list
+    const fetchUserList = async () => {
+      // TODO: Replace with actual API call
+      const mockUsers = [
+        { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Farmer' },
+        { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'Customer' },
+      ];
+      setUserList(mockUsers);
+    };
+
+    fetchAnalyticsData();
+    fetchUserList();
+  }, []);
 
   /**
    * Renders the appropriate content based on the active tab
@@ -35,7 +67,7 @@ function Dashboard() {
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <DashboardOverview />;
+        return <DashboardOverview analyticsData={analyticsData} />;
       case 'transactions':
         return <Transactions />;
       case 'cart':
@@ -44,6 +76,10 @@ function Dashboard() {
         return <Products />;
       case 'delivery':
         return <Delivery />;
+      case 'analytics':
+        return <Analytics data={analyticsData} />;
+      case 'users':
+        return <UserManagement users={userList} />;
       default:
         return <div>Select a tab to view content</div>;
     }
@@ -54,8 +90,8 @@ function Dashboard() {
    * This function is called when the user clicks on their profile icon
    */
   const toggleCircularMenu = () => {
-    setShowCircularMenu(!showCircularMenu); // Toggle the menu visibility state
-    setActiveMenuItem(null); // Reset the active menu item when toggling
+    setShowCircularMenu(!showCircularMenu);
+    setActiveMenuItem(null);
   };
 
   /**
@@ -65,8 +101,7 @@ function Dashboard() {
    * @param {string} item - The menu item that was clicked ('profile', 'settings', or 'logout')
    */
   const handleMenuItemClick = (item) => {
-    setActiveMenuItem(item); // Set the clicked item as active
-    // Handle the click action for each menu item
+    setActiveMenuItem(item);
     switch (item) {
       case 'profile':
         // TODO: Implement navigation to profile page
@@ -87,13 +122,12 @@ function Dashboard() {
 
   // Render the Dashboard component
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex flex-col md:flex-row h-screen bg-gray-100">
       {/* Sidebar navigation */}
-      <div className="w-64 bg-white shadow-md">
+      <div className="w-full md:w-64 bg-white shadow-md md:h-screen">
         <nav className="mt-5">
           <ul>
             {/* Navigation links for different sections */}
-            {/* Each link updates the activeTab state when clicked */}
             <li className="mb-2">
               <Link to="#" onClick={() => setActiveTab('dashboard')} className={`flex items-center px-4 py-2 text-gray-700 ${activeTab === 'dashboard' ? 'bg-green-500 text-white' : 'hover:bg-green-100'}`}>
                 <FaHome className="mr-3" /> Dashboard
@@ -117,6 +151,16 @@ function Dashboard() {
             <li className="mb-2">
               <Link to="#" onClick={() => setActiveTab('delivery')} className={`flex items-center px-4 py-2 text-gray-700 ${activeTab === 'delivery' ? 'bg-green-500 text-white' : 'hover:bg-green-100'}`}>
                 <FaTruck className="mr-3" /> Delivery
+              </Link>
+            </li>
+            <li className="mb-2">
+              <Link to="#" onClick={() => setActiveTab('analytics')} className={`flex items-center px-4 py-2 text-gray-700 ${activeTab === 'analytics' ? 'bg-green-500 text-white' : 'hover:bg-green-100'}`}>
+                <FaChartLine className="mr-3" /> Analytics
+              </Link>
+            </li>
+            <li className="mb-2">
+              <Link to="#" onClick={() => setActiveTab('users')} className={`flex items-center px-4 py-2 text-gray-700 ${activeTab === 'users' ? 'bg-green-500 text-white' : 'hover:bg-green-100'}`}>
+                <FaUsers className="mr-3" /> Users
               </Link>
             </li>
           </ul>
@@ -158,6 +202,39 @@ function Dashboard() {
         </header>
         {/* Content area for rendering active tab content */}
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
+          {/* Summary section */}
+          <div className="bg-white shadow-md p-6 mb-6">
+            <h2 className="text-2xl font-semibold mb-4">Dashboard Summary</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-green-100 p-4 rounded-lg">
+                <div className="flex items-center">
+                  <FaDollarSign className="text-green-500 text-3xl mr-3" />
+                  <div>
+                    <p className="text-sm text-gray-600">Total Sales</p>
+                    <p className="text-xl font-bold">${analyticsData?.totalSales || 0}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-blue-100 p-4 rounded-lg">
+                <div className="flex items-center">
+                  <FaUserPlus className="text-blue-500 text-3xl mr-3" />
+                  <div>
+                    <p className="text-sm text-gray-600">New Users</p>
+                    <p className="text-xl font-bold">{analyticsData?.newUsers || 0}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-yellow-100 p-4 rounded-lg">
+                <div className="flex items-center">
+                  <FaShoppingBasket className="text-yellow-500 text-3xl mr-3" />
+                  <div>
+                    <p className="text-sm text-gray-600">Active Orders</p>
+                    <p className="text-xl font-bold">{analyticsData?.activeOrders || 0}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
           <div className="container mx-auto px-6 py-8">
             {renderContent()}
           </div>
