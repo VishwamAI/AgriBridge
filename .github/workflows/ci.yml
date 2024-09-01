@@ -7,21 +7,116 @@ on:
     branches: [ main, documentation-updates ]
 
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
         node-version: '18.x'
-    - name: Debug - List directory contents
+    - name: Cache node modules
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+    - name: Install dependencies
       run: |
-        echo "Contents of src directory:"
-        ls -R src
-        echo "Contents of src/growers-gate-frontend directory:"
-        ls -R src/growers-gate-frontend
+        cd src/growers-gate-frontend
+        npm ci
+    - name: Run linter
+      run: |
+        cd src/growers-gate-frontend
+        npm run lint
+    - name: Run Prettier
+      run: |
+        cd src/growers-gate-frontend
+        npm run format:check
+
+  test-frontend:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18.x'
+    - name: Cache node modules
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+    - name: Install dependencies
+      run: |
+        cd src/growers-gate-frontend
+        npm ci
+    - name: Run frontend tests
+      run: |
+        cd src/growers-gate-frontend
+        npm test -- --coverage
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+
+  test-backend:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    - name: Cache pip packages
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: Install backend dependencies
+      run: |
+        cd src/growers-gate-backend
+        pip install -r requirements.txt
+    - name: Run backend tests
+      run: |
+        cd src/growers-gate-backend
+        python -m pytest --cov=./ --cov-report=xml
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [test-frontend, test-backend]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18.x'
+    - name: Cache node modules
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
     - name: Install dependencies
       run: |
         cd src/growers-gate-frontend
@@ -30,28 +125,17 @@ jobs:
       run: |
         cd src/growers-gate-frontend
         npm run build
-    - name: Run frontend tests
-      run: |
-        cd src/growers-gate-frontend
-        npm test
-    - name: Set up Python
-      uses: actions/setup-python@v2
+    - name: Run Lighthouse CI
+      uses: treosh/lighthouse-ci-action@v8
       with:
-        python-version: '3.x'
-    - name: Install backend dependencies
-      run: |
-        cd src/growers-gate-backend
-        pip install -r requirements.txt
-    - name: Run backend tests
-      run: |
-        cd src/growers-gate-backend
-        python -m pytest
+        configPath: './lighthouserc.json'
+        uploadArtifacts: true
+        temporaryPublicStorage: true
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-
     steps:
     - uses: actions/checkout@v2
     - name: Deploy Frontend to Netlify
@@ -74,3 +158,12 @@ jobs:
         heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
         heroku_email: ${{ secrets.HEROKU_EMAIL }}
         appdir: "src/growers-gate-backend"
+    - name: Slack Notification
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        text: Deployment ${{ job.status == 'success' && 'succeeded' || 'failed' }}!
+        fields: repo,message,commit,author,action,eventName,ref,workflow
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+      if: always()

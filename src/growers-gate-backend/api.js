@@ -9,8 +9,10 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const speakeasy = require('speakeasy');
+const qrcode = require('qrcode');
 const cors = require('cors');
 const { MongoClient } = require('mongodb');
+const crypto = require('crypto');
 require('dotenv').config();
 
 const app = express();
@@ -70,23 +72,55 @@ const authenticateJWT = (req, res, next) => {
  * @param {string} email.body.required - User's email
  * @param {string} password.body.required - User's password
  * @param {string} userType.body.required - User type (farmer, customer, or community)
- * @returns {Object} 201 - User registered successfully
+ * @returns {Object} 201 - User registered successfully with 2FA setup info
+ * @returns {Object} 400 - Bad request (e.g., missing fields)
  * @returns {Object} 500 - Server error
  */
 app.post('/register', async (req, res) => {
   try {
     const { firstName, lastName, email, password, userType } = req.body;
+
+    // Validate input
+    if (!firstName || !lastName || !email || !password || !userType) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    // Check if user already exists
+    const existingUser = await db.collection('users').findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
+    const twoFactorSecret = speakeasy.generateSecret();
     const user = {
       firstName,
       lastName,
       email,
       password: hashedPassword,
       userType,
-      twoFactorSecret: speakeasy.generateSecret().base32
+      twoFactorSecret: twoFactorSecret.base32,
+      twoFactorEnabled: false
     };
+
     const result = await db.collection('users').insertOne(user);
-    res.status(201).json({ message: 'User registered successfully', userId: result.insertedId });
+
+    // Generate QR code for 2FA setup
+    const otpauthUrl = speakeasy.otpauthURL({
+      secret: twoFactorSecret.ascii,
+      label: email,
+      issuer: 'Growers Gate'
+    });
+    const qrCodeUrl = await qrcode.toDataURL(otpauthUrl);
+
+    res.status(201).json({
+      message: 'User registered successfully',
+      userId: result.insertedId,
+      twoFactorSetup: {
+        qrCodeUrl,
+        secret: twoFactorSecret.base32
+      }
+    });
   } catch (error) {
     console.error('Error registering user:', error);
     res.status(500).json({ message: 'Error registering user' });
@@ -98,17 +132,33 @@ app.post('/register', async (req, res) => {
  * @route POST /login
  * @param {string} email.body.required - User's email
  * @param {string} password.body.required - User's password
- * @returns {Object} 200 - Login successful, returns JWT token and 2FA requirement
+ * @param {string} twoFactorToken.body - User's 2FA token (if 2FA is enabled)
+ * @returns {Object} 200 - Login successful, returns JWT token
+ * @returns {Object} 202 - Login successful, 2FA required
  * @returns {Object} 401 - Invalid credentials
  * @returns {Object} 500 - Server error
  */
 app.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, twoFactorToken } = req.body;
     const user = await db.collection('users').findOne({ email });
     if (user && await bcrypt.compare(password, user.password)) {
+      if (user.twoFactorEnabled) {
+        if (twoFactorToken) {
+          const verified = speakeasy.totp.verify({
+            secret: user.twoFactorSecret,
+            encoding: 'base32',
+            token: twoFactorToken
+          });
+          if (!verified) {
+            return res.status(401).json({ message: 'Invalid 2FA token' });
+          }
+        } else {
+          return res.status(202).json({ message: '2FA required', twoFactorRequired: true });
+        }
+      }
       const token = jwt.sign({ userId: user._id, email: user.email, userType: user.userType }, process.env.JWT_SECRET, { expiresIn: '1h' });
-      res.json({ token, twoFactorRequired: true });
+      res.json({ token, message: 'Login successful' });
     } else {
       res.status(401).json({ message: 'Invalid credentials' });
     }
@@ -122,7 +172,7 @@ app.post('/login', async (req, res) => {
  * Two-Factor Authentication Verification API
  * @route POST /verify-2fa
  * @param {string} token.body.required - 2FA token
- * @returns {Object} 200 - 2FA verified successfully
+ * @returns {Object} 200 - 2FA verified successfully, returns new JWT token
  * @returns {Object} 401 - Invalid 2FA token
  * @returns {Object} 500 - Server error
  */
@@ -132,20 +182,95 @@ app.post('/verify-2fa', authenticateJWT, async (req, res) => {
     const { token } = req.body;
     const user = await db.collection('users').findOne({ _id: userId });
 
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
     const verified = speakeasy.totp.verify({
       secret: user.twoFactorSecret,
       encoding: 'base32',
-      token: token
+      token: token,
+      window: 1 // Allow 30 seconds of time drift
     });
 
     if (verified) {
-      res.json({ message: '2FA verified successfully' });
+      // Generate a new JWT token with 2FA verification flag
+      const newToken = jwt.sign(
+        { userId: user._id, email: user.email, userType: user.userType, twoFAVerified: true },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' }
+      );
+      res.json({ message: '2FA verified successfully', token: newToken });
     } else {
       res.status(401).json({ message: 'Invalid 2FA token' });
     }
   } catch (error) {
     console.error('Error verifying 2FA:', error);
     res.status(500).json({ message: 'Error verifying 2FA' });
+  }
+});
+
+/**
+ * User Logout API
+ * @route POST /logout
+ * @security JWT
+ * @returns {Object} 200 - Logout successful
+ * @returns {Object} 401 - Unauthorized
+ */
+app.post('/logout', authenticateJWT, (req, res) => {
+  // In a real-world scenario, you might want to invalidate the token on the server-side
+  // For this simple implementation, we'll just send a success response
+  res.json({ message: 'Logout successful' });
+});
+
+/**
+ * Initiate Password Reset API
+ * @route POST /forgot-password
+ * @param {string} email.body.required - User's email
+ * @returns {Object} 200 - Password reset email sent
+ * @returns {Object} 404 - User not found
+ * @returns {Object} 500 - Server error
+ */
+app.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await db.collection('users').findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    const resetToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    // In a real-world scenario, send an email with the reset link
+    // For this implementation, we'll just return the token
+    res.json({ message: 'Password reset email sent', resetToken });
+  } catch (error) {
+    console.error('Error initiating password reset:', error);
+    res.status(500).json({ message: 'Error initiating password reset' });
+  }
+});
+
+/**
+ * Complete Password Reset API
+ * @route POST /reset-password
+ * @param {string} token.body.required - Password reset token
+ * @param {string} newPassword.body.required - New password
+ * @returns {Object} 200 - Password reset successful
+ * @returns {Object} 400 - Invalid or expired token
+ * @returns {Object} 500 - Server error
+ */
+app.post('/reset-password', async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await db.collection('users').findOne({ _id: decoded.userId });
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired token' });
+    }
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await db.collection('users').updateOne({ _id: user._id }, { $set: { password: hashedPassword } });
+    res.json({ message: 'Password reset successful' });
+  } catch (error) {
+    console.error('Error resetting password:', error);
+    res.status(500).json({ message: 'Error resetting password' });
   }
 });
 
@@ -170,6 +295,40 @@ app.get('/dashboard', authenticateJWT, (req, res) => {
       break;
     default:
       res.status(403).json({ message: 'Access denied' });
+  }
+});
+
+/**
+ * Generate OTP for Rider Authentication
+ * @route POST /generate-rider-otp
+ * @security JWT
+ * @param {string} orderId.body.required - Order ID for which OTP is generated
+ * @returns {Object} 200 - OTP generated successfully
+ * @returns {Object} 400 - Bad request
+ * @returns {Object} 401 - Unauthorized
+ */
+app.post('/generate-rider-otp', authenticateJWT, async (req, res) => {
+  try {
+    const { orderId } = req.body;
+    if (!orderId) {
+      return res.status(400).json({ message: 'Order ID is required' });
+    }
+
+    const otp = speakeasy.totp({
+      secret: process.env.OTP_SECRET,
+      encoding: 'base32'
+    });
+
+    // Store OTP in the database associated with the order
+    await db.collection('orders').updateOne(
+      { _id: orderId },
+      { $set: { riderOtp: otp, otpCreatedAt: new Date() } }
+    );
+
+    res.json({ message: 'OTP generated successfully', otp });
+  } catch (error) {
+    console.error('Error generating OTP:', error);
+    res.status(500).json({ message: 'Error generating OTP' });
   }
 });
 
