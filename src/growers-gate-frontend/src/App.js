@@ -1,6 +1,5 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import './App.css';
 import Home from './components/Home';
 import LoginSignup from './components/LoginSignup';
 import Dashboard from './components/Dashboard';
@@ -8,7 +7,7 @@ import Dashboard from './components/Dashboard';
 function App() {
   return (
     <Router>
-      <div className="App">
+      <div className="min-h-screen bg-gray-100">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginSignup />} />
