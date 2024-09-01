@@ -14,35 +14,38 @@
 - [x] Footer with quick links and social media icons
 
 ## Authentication Pages
-- [ ] Login page
-  - [ ] Email/username input
-  - [ ] Password input
-  - [ ] "Remember me" checkbox
-  - [ ] "Forgot password" link
-  - [ ] Submit button
-  - [ ] Option to switch to signup page
-  - [ ] 2FA integration
+- [x] Login page
+  - [x] Email/username input
+  - [x] Password input
+  - [x] "Remember me" checkbox
+  - [x] "Forgot password" link
+  - [x] Submit button
+  - [x] Option to switch to signup page
+  - [ ] 2FA integration (partially implemented)
+    - [x] 2FA verification input field
     - [ ] 2FA setup process
-    - [ ] 2FA verification input field
     - [ ] Backup codes generation and management
-- [ ] Signup page
-  - [ ] Name input (First and Last)
-  - [ ] Email input
-  - [ ] Password input
-  - [ ] Confirm password input
-  - [ ] User type selection (Farmer, Customer, Community)
-  - [ ] Terms and conditions checkbox
-  - [ ] Submit button
-  - [ ] Option to switch to login page
-  - [ ] 2FA setup option
-- [ ] Forgot password page
-  - [ ] Email input
-  - [ ] Submit button
-  - [ ] Instructions for password reset process
-- [ ] 2FA Management page
-  - [ ] Enable/disable 2FA
-  - [ ] QR code for app-based 2FA
-  - [ ] Backup codes management
+- [x] Signup page
+  - [x] Name input (Full Name)
+  - [x] Email input
+  - [x] Password input
+  - [x] Confirm password input
+  - [x] User type selection (Farmer, Customer)
+  - [x] Terms and conditions checkbox
+  - [x] Submit button
+  - [x] Option to switch to login page
+  - [ ] 2FA setup option (to be implemented)
+- [x] Forgot password page
+  - [x] Email input
+  - [x] Submit button
+  - [x] Instructions for password reset process
+- [x] 2FA Management page (basic implementation)
+  - [x] Enable/disable 2FA
+  - [x] QR code placeholder for app-based 2FA
+  - [x] Backup codes management (generation and display)
+- [ ] Integrate authentication components with backend
+- [ ] Implement actual 2FA functionality (SMS, app-based, or email)
+- [ ] Add form validation and error handling
 
 ## Dashboard Components
 - [ ] Farmer Dashboard
@@ -83,14 +86,15 @@
 
 ## Login System
 - [ ] Implement role-based access control
-- [ ] Create login page
+- [x] Create login page (basic implementation)
 - [ ] Integrate with backend authentication
-- [ ] Implement 2FA
+- [ ] Implement full 2FA functionality
   - [ ] SMS-based 2FA
   - [ ] App-based 2FA (e.g., Google Authenticator)
   - [ ] Email-based 2FA
 - [ ] Session management
 - [ ] Password strength requirements
+- [ ] Implement secure password reset flow
 
 ## Integration
 - [ ] Connect all components within the main application structure
