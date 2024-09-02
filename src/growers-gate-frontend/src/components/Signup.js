@@ -27,7 +27,7 @@ function Signup() {
   const { register, handleSubmit, formState, setError, clearErrors } = useForm({
     resolver: yupResolver(validationSchema)
   });
-  const { errors, isSubmitting } = formState;
+  const { errors } = formState;
 
   const onSubmit = async (data) => {
     clearErrors();

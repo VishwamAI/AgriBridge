@@ -39,7 +39,7 @@ function Login() {
       } else if (response.status === 200) {
         // Login successful
         localStorage.setItem('token', response.data.token);
-        const { userType, dashboardRoute } = response.data;
+        const { dashboardRoute } = response.data;
         if (dashboardRoute) {
           navigate(dashboardRoute);
         } else {
@@ -65,7 +65,7 @@ function Login() {
       });
       if (response.status === 200) {
         localStorage.setItem('token', response.data.token);
-        const { userType, dashboardRoute } = response.data;
+        const { dashboardRoute } = response.data;
         if (dashboardRoute) {
           navigate(dashboardRoute);
         } else {
