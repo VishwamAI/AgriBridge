@@ -216,12 +216,13 @@ function Signup() {
                 className="ml-2 block text-sm text-gray-900"
               >
                 I agree to the{" "}
-                <a
-                  href="#"
+                <button
+                  type="button"
+                  onClick={() => window.open('/terms-and-conditions', '_blank')}
                   className="font-medium text-green-600 hover:text-green-500"
                 >
                   Terms and Conditions
-                </a>
+                </button>
               </label>
             </div>
             {errors.termsAccepted && (
