@@ -163,17 +163,25 @@ app.post('/register', [
     console.log('Password passed common password check');
 
     // Check password against leaked password database (example using haveibeenpwned API)
+    console.log('Checking password against leaked password database');
     const sha1Password = crypto.createHash('sha1').update(password).digest('hex').toUpperCase();
     const prefix = sha1Password.slice(0, 5);
     const suffix = sha1Password.slice(5);
-    const response = await axios.get(`https://api.pwnedpasswords.com/range/${prefix}`);
-    const leakedPasswords = response.data.split('\n');
-    const leakedPassword = leakedPasswords.find(p => p.split(':')[0] === suffix);
-    if (leakedPassword) {
-      console.log('Leaked password detected');
-      return res.status(400).json({ message: 'This password has been found in a data breach. Please choose a different password.' });
+    try {
+      console.log('Sending request to haveibeenpwned API');
+      const pwnedResponse = await axios.get(`https://api.pwnedpasswords.com/range/${prefix}`);
+      console.log('Received response from haveibeenpwned API');
+      const leakedPasswords = pwnedResponse.data.split('\n');
+      const leakedPassword = leakedPasswords.find(p => p.split(':')[0] === suffix);
+      if (leakedPassword) {
+        console.log('Leaked password detected');
+        return res.status(400).json({ message: 'This password has been found in a data breach. Please choose a different password.' });
+      }
+      console.log('Password not found in leaked password database');
+    } catch (pwnedError) {
+      console.error('Error checking leaked password database:', pwnedError);
+      console.log('Continuing with registration despite API check failure');
     }
-    console.log('Password not found in leaked password database');
 
     console.log('Hashing password');
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -198,13 +206,29 @@ app.post('/register', [
       lastPasswordChange: new Date()
     };
 
-    console.log('Attempting to insert user into database');
+    console.log('Attempting to insert user into database:', JSON.stringify(user, null, 2));
     let result;
+    const insertStartTime = Date.now();
     try {
       result = await db.collection('users').insertOne(user);
-      console.log('User inserted. InsertedId:', result.insertedId, 'Acknowledged:', result.acknowledged);
+      const insertDuration = Date.now() - insertStartTime;
+      console.log(`User insertion completed in ${insertDuration}ms. Result:`, JSON.stringify(result, null, 2));
+      if (result.acknowledged && result.insertedId) {
+        console.log('User inserted successfully. InsertedId:', result.insertedId.toString());
+        console.log('Verifying user insertion...');
+        const insertedUser = await db.collection('users').findOne({ _id: result.insertedId });
+        if (insertedUser) {
+          console.log('User verified in database:', JSON.stringify(insertedUser, null, 2));
+        } else {
+          console.warn('User not found in database immediately after insertion. This may indicate a replication lag.');
+        }
+      } else {
+        console.warn('User insertion may have failed. Result:', JSON.stringify(result, null, 2));
+      }
     } catch (dbError) {
       console.error('Database insertion error:', dbError);
+      console.error('Error details:', JSON.stringify(dbError, null, 2));
+      console.error('Stack trace:', dbError.stack);
       throw dbError;
     }
 
@@ -225,11 +249,13 @@ app.post('/register', [
       console.log('QR Code URL generated. Length:', qrCodeUrl.length);
     } catch (qrError) {
       console.error('QR Code generation error:', qrError);
+      console.error('Error details:', JSON.stringify(qrError, null, 2));
       throw qrError;
     }
 
     // Generate JWT token
-    console.log('Generating JWT token');
+    console.log('Starting JWT token generation');
+    const startTime = Date.now();
     let token;
     try {
       token = jwt.sign(
@@ -244,13 +270,17 @@ app.post('/register', [
           algorithm: 'HS256'
         }
       );
-      console.log('JWT token generated. Length:', token.length);
+      const endTime = Date.now();
+      console.log(`JWT token generated successfully. Length: ${token.length}. Time taken: ${endTime - startTime}ms`);
+      console.log('JWT payload:', JSON.stringify({ userId: result.insertedId.toString(), email: user.email, userType: user.userType }, null, 2));
     } catch (jwtError) {
       console.error('JWT generation error:', jwtError);
+      console.error('Error details:', JSON.stringify(jwtError, null, 2));
+      console.error('Stack trace:', jwtError.stack);
       throw jwtError;
     }
 
-    const response = {
+    const registrationResponse = {
       message: 'User registered successfully',
       userId: result.insertedId.toString(),
       token,
@@ -261,15 +291,16 @@ app.post('/register', [
       }
     };
     console.log('Registration successful. Response details:', {
-      userId: response.userId,
-      userType: response.userType,
-      tokenLength: response.token.length,
-      qrCodeUrlLength: response.twoFactorSetup.qrCodeUrl.length,
-      secretLength: response.twoFactorSetup.secret.length
+      userId: registrationResponse.userId,
+      userType: registrationResponse.userType,
+      tokenLength: registrationResponse.token.length,
+      qrCodeUrlLength: registrationResponse.twoFactorSetup.qrCodeUrl.length,
+      secretLength: registrationResponse.twoFactorSetup.secret.length
     });
 
     // Log the registration event
     try {
+      console.log('Creating audit log entry');
       await db.collection('audit_logs').insertOne({
         event: 'user_registration',
         userId: result.insertedId,
@@ -281,10 +312,12 @@ app.post('/register', [
       console.log('Audit log entry created for user registration');
     } catch (auditLogError) {
       console.error('Error creating audit log entry:', auditLogError);
+      console.error('Error details:', JSON.stringify(auditLogError, null, 2));
       // Don't throw here, as we still want to return the successful registration response
     }
 
-    res.status(201).json(response);
+    console.log('Sending successful registration response');
+    res.status(201).json(registrationResponse);
   } catch (error) {
     console.error('Error registering user:', error);
     console.error('Error stack:', error.stack);
@@ -294,6 +327,7 @@ app.post('/register', [
     }
     // Log the error
     try {
+      console.log('Creating error log entry');
       await db.collection('error_logs').insertOne({
         error: error.message,
         stack: error.stack,
@@ -305,7 +339,9 @@ app.post('/register', [
       console.log('Error log entry created');
     } catch (logError) {
       console.error('Error creating error log entry:', logError);
+      console.error('Error details:', JSON.stringify(logError, null, 2));
     }
+    console.log('Sending 500 error response');
     res.status(500).json({ message: 'An unexpected error occurred during registration. Please try again later.' });
   }
 });
