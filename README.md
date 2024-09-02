@@ -27,12 +27,17 @@ Growers Gate empowers farmers by offering them a platform to list their products
   - **Farmer Dashboard**: Manage products, view sales, handle orders, access analytics, and request support.
   - **User Dashboard**: Browse products, manage cart, place orders, and view order history.
   - **Admin Dashboard**: Manage all users, products, orders, and view comprehensive analytics.
-  - **Rider Dashboard**: Manage deliveries, update order statuses, and view performance metrics.
+  - **Rider Dashboard**:
+    - Manage deliveries and update order statuses with OTP verification
+    - View and manage payment details
+    - Access performance metrics and analytics
+    - Handle support requests
 - **Product Management**: Farmers can add, edit, or remove products from their listings.
-- **Order Management**: Comprehensive system for tracking and managing orders.
+- **Order Management**: Comprehensive system for tracking and managing orders across all user types.
 - **Cart and Checkout**: Seamless shopping experience for consumers.
-- **Support System**: In-built support request functionality for users.
-- **Analytics and Insights**: Detailed analytics for farmers and admins.
+- **Support System**: In-built support request functionality for all users.
+- **Analytics and Insights**: Detailed analytics for farmers, riders, and admins.
+- **Payment Management**: Secure payment processing and tracking for all transactions.
 - **Responsive Design**: Mobile-friendly interface for all user types.
 
 ## Technology Stack
@@ -147,6 +152,7 @@ Ensure you have the following installed:
 - `GET /api/farmer/analytics/sales`: Fetch farmer sales analytics
 - `GET /api/farmer/analytics/products`: Fetch farmer product analytics
 - `GET /api/farmer/analytics/customers`: Fetch farmer customer analytics
+- `GET /rider/payments`: Fetch rider payment details
 
 For detailed API documentation, refer to the backend code in `src/growers-gate-backend/api.js`.
 
