@@ -2,10 +2,20 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import axios from 'axios';
+import { useForm } from 'react-hook-form';
+import * as Yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+
+const validationSchema = Yup.object().shape({
+  email: Yup.string()
+    .required('Email is required')
+    .email('Email is invalid'),
+  password: Yup.string()
+    .required('Password is required')
+    .min(8, 'Password must be at least 8 characters')
+});
 
 function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [twoFACode, setTwoFACode] = useState('');
@@ -14,34 +24,26 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const { register, handleSubmit, formState: { errors }, getValues } = useForm({
+    resolver: yupResolver(validationSchema)
+  });
+
+  const onSubmit = async (data) => {
     setError('');
     setLoading(true);
     try {
-      const response = await axios.post('http://localhost:3001/login', { email, password });
+      const response = await axios.post('http://localhost:3001/login', data);
       if (response.status === 202) {
         // 2FA required
         setShowTwoFA(true);
       } else if (response.status === 200) {
         // Login successful
         localStorage.setItem('token', response.data.token);
-        const userType = response.data.userType;
-        switch (userType) {
-          case 'farmer':
-            navigate('/farmer-dashboard');
-            break;
-          case 'customer':
-            navigate('/user-dashboard');
-            break;
-          case 'admin':
-            navigate('/admin-dashboard');
-            break;
-          case 'community':
-            navigate('/community-dashboard');
-            break;
-          default:
-            setError('Unknown user type');
+        const { userType, dashboardRoute } = response.data;
+        if (dashboardRoute) {
+          navigate(dashboardRoute);
+        } else {
+          setError('Invalid dashboard route');
         }
       }
     } catch (error) {
@@ -56,25 +58,18 @@ function Login() {
     setError('');
     setLoading(true);
     try {
-      const response = await axios.post('http://localhost:3001/verify-2fa', { token: twoFACode });
+      const { email } = getValues(); // Get email from form data
+      const response = await axios.post('http://localhost:3001/verify-2fa', {
+        email,
+        twoFactorToken: twoFACode
+      });
       if (response.status === 200) {
         localStorage.setItem('token', response.data.token);
-        const userRole = response.data.role;
-        switch (userRole) {
-          case 'farmer':
-            navigate('/farmer-dashboard');
-            break;
-          case 'user':
-            navigate('/user-dashboard');
-            break;
-          case 'admin':
-            navigate('/admin-dashboard');
-            break;
-          case 'community':
-            navigate('/community-dashboard');
-            break;
-          default:
-            setError('Unknown user role');
+        const { userType, dashboardRoute } = response.data;
+        if (dashboardRoute) {
+          navigate(dashboardRoute);
+        } else {
+          setError('Invalid dashboard route');
         }
       }
     } catch (error) {
@@ -93,7 +88,7 @@ function Login() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           {error && <div className="mb-4 text-red-600">{error}</div>}
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email address
@@ -101,14 +96,12 @@ function Login() {
               <div className="mt-1">
                 <input
                   id="email"
-                  name="email"
+                  {...register('email')}
                   type="email"
                   autoComplete="email"
-                  required
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
                 />
+                {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
               </div>
             </div>
 
@@ -122,10 +115,14 @@ function Login() {
                   name="password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
-                  required
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  {...register("password", {
+                    required: "Password is required",
+                    minLength: {
+                      value: 8,
+                      message: "Password must be at least 8 characters long"
+                    }
+                  })}
+                  className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm ${errors.password ? 'border-red-500' : 'border-gray-300'}`}
                 />
                 <button
                   type="button"
@@ -135,6 +132,7 @@ function Login() {
                   {showPassword ? <FaEyeSlash className="h-5 w-5 text-gray-500" /> : <FaEye className="h-5 w-5 text-gray-500" />}
                 </button>
               </div>
+              {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>}
             </div>
 
             <div className="flex items-center justify-between">

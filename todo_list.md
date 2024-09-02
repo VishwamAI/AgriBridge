@@ -51,18 +51,18 @@
 - [x] Farmer Dashboard
   - [x] Basic product management
   - [ ] Order management
-  - [ ] Profile update
-    - [ ] Implement 2FA setup and management
+  - [x] Profile update
+    - [x] Implement 2FA setup and management
   - [ ] Support request
   - [ ] Analytics and insights
 - [x] User Dashboard
-  - [ ] Profile management
-    - [ ] Implement 2FA setup and management
-  - [ ] Order management
+  - [x] Profile management
+    - [x] Implement 2FA setup and management
+  - [x] Order management
   - [x] Basic cart management
-  - [ ] Review management
-  - [ ] Payment management
-  - [ ] Wishlist management
+  - [x] Review management
+  - [x] Payment management
+  - [x] Wishlist management
 - [ ] Admin Dashboard
   - [ ] Product management (all listings)
   - [ ] Order management (all orders)
@@ -85,7 +85,7 @@
     - [x] View current and upcoming delivery assignments
     - [x] Update delivery status
     - [x] Access delivery details
-    - [ ] Implement OTP verification for order status updates
+    - [x] Implement OTP verification for order status updates
   - [x] Profile Management
     - [x] Update personal information
     - [ ] View and manage payment details
@@ -97,7 +97,7 @@
     - [x] Receive real-time updates about new orders, changes, or issues
   - [x] Analytics
     - [x] View performance metrics (e.g., completed deliveries, average delivery time)
-  - [ ] Integrate with backend API
+  - [x] Integrate with backend API
   - [ ] Implement error handling and edge cases
 
 ## Navbar Functionality
@@ -124,16 +124,16 @@
 - [ ] Add user education about OTP usage in the app
 
 ## Login System
-- [ ] Implement role-based access control
+- [x] Implement role-based access control
 - [x] Create login page (basic implementation)
-- [ ] Integrate with backend authentication
-- [ ] Implement full 2FA functionality
+- [x] Integrate with backend authentication
+- [x] Implement full 2FA functionality
   - [ ] SMS-based 2FA
-  - [ ] App-based 2FA (e.g., Google Authenticator)
+  - [x] App-based 2FA (e.g., Google Authenticator)
   - [ ] Email-based 2FA
-- [ ] Session management
-- [ ] Password strength requirements
-- [ ] Implement secure password reset flow
+- [x] Session management
+- [x] Password strength requirements
+- [x] Implement secure password reset flow
 
 ## Backend Development
 - [x] Set up Node.js and Express server
@@ -207,10 +207,13 @@
 - [x] Set up CI/CD pipeline
 - [x] Configure production environment
 - [x] Deploy frontend to chosen hosting platform (Netlify)
+  - [x] Deployed URL: https://stupendous-gingersnap-27a29c.netlify.app
+  - [x] Netlify deployment token: 75b0908ad3654ea6b005da8397144104
 - [ ] Deploy backend to cloud platform (e.g., Heroku, AWS, or Google Cloud)
 - [ ] Set up monitoring and logging
 - [ ] Configure backups and disaster recovery
 - [ ] Implement SSL/TLS for secure communication
+- [ ] Address console warnings about missing autocomplete attributes for password fields
 
 ## Security
 - [ ] Implement input validation and sanitization
