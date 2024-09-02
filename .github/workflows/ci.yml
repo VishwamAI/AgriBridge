@@ -102,7 +102,7 @@ jobs:
         npm ci
     - name: Run backend tests
       env:
-        MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        MONGODB_URI: mongodb://localhost:27017/growers_gate_test
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
         OTP_SECRET: ${{ secrets.OTP_SECRET }}
       run: |
