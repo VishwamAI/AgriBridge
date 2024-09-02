@@ -1,23 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { FaBox, FaShoppingCart, FaUsers, FaHeadset, FaChartLine, FaCog } from 'react-icons/fa';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import {
+  FaBox,
+  FaShoppingCart,
+  FaUsers,
+  FaHeadset,
+  FaChartLine,
+  FaCog,
+} from "react-icons/fa";
+import axios from "axios";
 
 function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState('users');
+  const [activeTab, setActiveTab] = useState("users");
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'products':
+      case "products":
         return <ProductManagement />;
-      case 'orders':
+      case "orders":
         return <OrderManagement />;
-      case 'users':
+      case "users":
         return <UserManagement />;
-      case 'support':
+      case "support":
         return <SupportManagement />;
-      case 'analytics':
+      case "analytics":
         return <AnalyticsReporting />;
-      case 'settings':
+      case "settings":
         return <SystemSettings />;
       default:
         return <div>Select a tab to view content</div>;
@@ -33,48 +40,48 @@ function AdminDashboard() {
             <ul>
               <li className="mb-2">
                 <button
-                  onClick={() => setActiveTab('users')}
-                  className={`w-full text-left px-4 py-2 rounded-md ${activeTab === 'users' ? 'bg-blue-500 text-white' : 'hover:bg-blue-100'}`}
+                  onClick={() => setActiveTab("users")}
+                  className={`w-full text-left px-4 py-2 rounded-md ${activeTab === "users" ? "bg-blue-500 text-white" : "hover:bg-blue-100"}`}
                 >
                   <FaUsers className="inline-block mr-2" /> Users
                 </button>
               </li>
               <li className="mb-2">
                 <button
-                  onClick={() => setActiveTab('products')}
-                  className={`w-full text-left px-4 py-2 rounded-md ${activeTab === 'products' ? 'bg-blue-500 text-white' : 'hover:bg-blue-100'}`}
+                  onClick={() => setActiveTab("products")}
+                  className={`w-full text-left px-4 py-2 rounded-md ${activeTab === "products" ? "bg-blue-500 text-white" : "hover:bg-blue-100"}`}
                 >
                   <FaBox className="inline-block mr-2" /> Products
                 </button>
               </li>
               <li className="mb-2">
                 <button
-                  onClick={() => setActiveTab('orders')}
-                  className={`w-full text-left px-4 py-2 rounded-md ${activeTab === 'orders' ? 'bg-blue-500 text-white' : 'hover:bg-blue-100'}`}
+                  onClick={() => setActiveTab("orders")}
+                  className={`w-full text-left px-4 py-2 rounded-md ${activeTab === "orders" ? "bg-blue-500 text-white" : "hover:bg-blue-100"}`}
                 >
                   <FaShoppingCart className="inline-block mr-2" /> Orders
                 </button>
               </li>
               <li className="mb-2">
                 <button
-                  onClick={() => setActiveTab('support')}
-                  className={`w-full text-left px-4 py-2 rounded-md ${activeTab === 'support' ? 'bg-blue-500 text-white' : 'hover:bg-blue-100'}`}
+                  onClick={() => setActiveTab("support")}
+                  className={`w-full text-left px-4 py-2 rounded-md ${activeTab === "support" ? "bg-blue-500 text-white" : "hover:bg-blue-100"}`}
                 >
                   <FaHeadset className="inline-block mr-2" /> Support
                 </button>
               </li>
               <li className="mb-2">
                 <button
-                  onClick={() => setActiveTab('analytics')}
-                  className={`w-full text-left px-4 py-2 rounded-md ${activeTab === 'analytics' ? 'bg-blue-500 text-white' : 'hover:bg-blue-100'}`}
+                  onClick={() => setActiveTab("analytics")}
+                  className={`w-full text-left px-4 py-2 rounded-md ${activeTab === "analytics" ? "bg-blue-500 text-white" : "hover:bg-blue-100"}`}
                 >
                   <FaChartLine className="inline-block mr-2" /> Analytics
                 </button>
               </li>
               <li className="mb-2">
                 <button
-                  onClick={() => setActiveTab('settings')}
-                  className={`w-full text-left px-4 py-2 rounded-md ${activeTab === 'settings' ? 'bg-blue-500 text-white' : 'hover:bg-blue-100'}`}
+                  onClick={() => setActiveTab("settings")}
+                  className={`w-full text-left px-4 py-2 rounded-md ${activeTab === "settings" ? "bg-blue-500 text-white" : "hover:bg-blue-100"}`}
                 >
                   <FaCog className="inline-block mr-2" /> Settings
                 </button>
@@ -103,11 +110,11 @@ const UserManagement = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('/api/admin/users');
+      const response = await axios.get("/api/admin/users");
       setUsers(response.data);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error("Error fetching users:", error);
       setLoading(false);
     }
   };
@@ -128,15 +135,19 @@ const UserManagement = () => {
           </tr>
         </thead>
         <tbody>
-          {users.map(user => (
+          {users.map((user) => (
             <tr key={user.id} className="border-b">
               <td className="p-2">{user.id}</td>
               <td className="p-2">{user.name}</td>
               <td className="p-2">{user.email}</td>
               <td className="p-2">{user.role}</td>
               <td className="p-2">
-                <button className="bg-blue-500 text-white px-2 py-1 rounded mr-2">Edit</button>
-                <button className="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
+                <button className="bg-blue-500 text-white px-2 py-1 rounded mr-2">
+                  Edit
+                </button>
+                <button className="bg-red-500 text-white px-2 py-1 rounded">
+                  Delete
+                </button>
               </td>
             </tr>
           ))}
@@ -159,11 +170,11 @@ const SystemSettings = () => {
 
   const fetchSettings = async () => {
     try {
-      const response = await axios.get('/api/admin/settings');
+      const response = await axios.get("/api/admin/settings");
       setSettings(response.data);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching settings:', error);
+      console.error("Error fetching settings:", error);
       setLoading(false);
     }
   };
@@ -184,7 +195,9 @@ const SystemSettings = () => {
               id={key}
               type="text"
               value={value}
-              onChange={(e) => setSettings({ ...settings, [key]: e.target.value })}
+              onChange={(e) =>
+                setSettings({ ...settings, [key]: e.target.value })
+              }
             />
           </div>
         ))}

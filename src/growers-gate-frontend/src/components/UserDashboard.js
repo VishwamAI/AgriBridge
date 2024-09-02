@@ -1,23 +1,30 @@
-import React, { useState } from 'react';
-import { FaUser, FaShoppingCart, FaClipboardList, FaStar, FaCreditCard, FaHeart } from 'react-icons/fa';
-import ProfileManagement from './ProfileManagement';
+import React, { useState } from "react";
+import {
+  FaUser,
+  FaShoppingCart,
+  FaClipboardList,
+  FaStar,
+  FaCreditCard,
+  FaHeart,
+} from "react-icons/fa";
+import ProfileManagement from "./ProfileManagement";
 
 function UserDashboard() {
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState("profile");
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'profile':
+      case "profile":
         return <ProfileManagement />;
-      case 'orders':
+      case "orders":
         return <OrderManagement />;
-      case 'cart':
+      case "cart":
         return <CartManagement />;
-      case 'reviews':
+      case "reviews":
         return <ReviewManagement />;
-      case 'payments':
+      case "payments":
         return <PaymentManagement />;
-      case 'wishlist':
+      case "wishlist":
         return <WishlistManagement />;
       default:
         return <div>Select a tab to view content</div>;
@@ -33,48 +40,48 @@ function UserDashboard() {
             <ul>
               <li className="mb-2">
                 <button
-                  onClick={() => setActiveTab('profile')}
-                  className={`w-full text-left px-4 py-2 rounded-md ${activeTab === 'profile' ? 'bg-green-500 text-white' : 'hover:bg-green-100'}`}
+                  onClick={() => setActiveTab("profile")}
+                  className={`w-full text-left px-4 py-2 rounded-md ${activeTab === "profile" ? "bg-green-500 text-white" : "hover:bg-green-100"}`}
                 >
                   <FaUser className="inline-block mr-2" /> Profile
                 </button>
               </li>
               <li className="mb-2">
                 <button
-                  onClick={() => setActiveTab('orders')}
-                  className={`w-full text-left px-4 py-2 rounded-md ${activeTab === 'orders' ? 'bg-green-500 text-white' : 'hover:bg-green-100'}`}
+                  onClick={() => setActiveTab("orders")}
+                  className={`w-full text-left px-4 py-2 rounded-md ${activeTab === "orders" ? "bg-green-500 text-white" : "hover:bg-green-100"}`}
                 >
                   <FaClipboardList className="inline-block mr-2" /> Orders
                 </button>
               </li>
               <li className="mb-2">
                 <button
-                  onClick={() => setActiveTab('cart')}
-                  className={`w-full text-left px-4 py-2 rounded-md ${activeTab === 'cart' ? 'bg-green-500 text-white' : 'hover:bg-green-100'}`}
+                  onClick={() => setActiveTab("cart")}
+                  className={`w-full text-left px-4 py-2 rounded-md ${activeTab === "cart" ? "bg-green-500 text-white" : "hover:bg-green-100"}`}
                 >
                   <FaShoppingCart className="inline-block mr-2" /> Cart
                 </button>
               </li>
               <li className="mb-2">
                 <button
-                  onClick={() => setActiveTab('reviews')}
-                  className={`w-full text-left px-4 py-2 rounded-md ${activeTab === 'reviews' ? 'bg-green-500 text-white' : 'hover:bg-green-100'}`}
+                  onClick={() => setActiveTab("reviews")}
+                  className={`w-full text-left px-4 py-2 rounded-md ${activeTab === "reviews" ? "bg-green-500 text-white" : "hover:bg-green-100"}`}
                 >
                   <FaStar className="inline-block mr-2" /> Reviews
                 </button>
               </li>
               <li className="mb-2">
                 <button
-                  onClick={() => setActiveTab('payments')}
-                  className={`w-full text-left px-4 py-2 rounded-md ${activeTab === 'payments' ? 'bg-green-500 text-white' : 'hover:bg-green-100'}`}
+                  onClick={() => setActiveTab("payments")}
+                  className={`w-full text-left px-4 py-2 rounded-md ${activeTab === "payments" ? "bg-green-500 text-white" : "hover:bg-green-100"}`}
                 >
                   <FaCreditCard className="inline-block mr-2" /> Payments
                 </button>
               </li>
               <li className="mb-2">
                 <button
-                  onClick={() => setActiveTab('wishlist')}
-                  className={`w-full text-left px-4 py-2 rounded-md ${activeTab === 'wishlist' ? 'bg-green-500 text-white' : 'hover:bg-green-100'}`}
+                  onClick={() => setActiveTab("wishlist")}
+                  className={`w-full text-left px-4 py-2 rounded-md ${activeTab === "wishlist" ? "bg-green-500 text-white" : "hover:bg-green-100"}`}
                 >
                   <FaHeart className="inline-block mr-2" /> Wishlist
                 </button>

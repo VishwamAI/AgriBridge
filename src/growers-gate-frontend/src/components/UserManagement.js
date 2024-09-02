@@ -1,5 +1,5 @@
-import React from 'react';
-import { FaUserEdit, FaTrash } from 'react-icons/fa';
+import React from "react";
+import { FaUserEdit, FaTrash } from "react-icons/fa";
 
 function UserManagement({ users }) {
   return (
@@ -17,8 +17,13 @@ function UserManagement({ users }) {
           </thead>
           <tbody className="text-gray-600 text-sm font-light">
             {users.map((user) => (
-              <tr key={user.id} className="border-b border-gray-200 hover:bg-gray-100">
-                <td className="py-3 px-6 text-left whitespace-nowrap">{user.name}</td>
+              <tr
+                key={user.id}
+                className="border-b border-gray-200 hover:bg-gray-100"
+              >
+                <td className="py-3 px-6 text-left whitespace-nowrap">
+                  {user.name}
+                </td>
                 <td className="py-3 px-6 text-left">{user.email}</td>
                 <td className="py-3 px-6 text-center">{user.role}</td>
                 <td className="py-3 px-6 text-center">

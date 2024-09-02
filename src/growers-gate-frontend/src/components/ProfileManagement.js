@@ -1,6 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { FaUser, FaEnvelope, FaLock, FaShieldAlt, FaInfoCircle } from 'react-icons/fa';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import {
+  FaUser,
+  FaEnvelope,
+  FaLock,
+  FaShieldAlt,
+  FaInfoCircle,
+} from "react-icons/fa";
+import axios from "axios";
 
 const TwoFAEducation = () => (
   <div className="bg-blue-100 p-4 rounded-md mb-4">
@@ -8,7 +14,10 @@ const TwoFAEducation = () => (
       <FaInfoCircle className="mr-2" />
       Two-Factor Authentication (2FA)
     </h4>
-    <p className="mb-2">2FA adds an extra layer of security to your account by requiring two different forms of identification to log in.</p>
+    <p className="mb-2">
+      2FA adds an extra layer of security to your account by requiring two
+      different forms of identification to log in.
+    </p>
     <h5 className="font-semibold mt-2">Benefits:</h5>
     <ul className="list-disc list-inside mb-2">
       <li>Enhanced account security</li>
@@ -18,24 +27,30 @@ const TwoFAEducation = () => (
     <h5 className="font-semibold mt-2">How to set up:</h5>
     <ol className="list-decimal list-inside mb-2">
       <li>Click the "Enable 2FA" button</li>
-      <li>Scan the QR code with an authenticator app (e.g., Google Authenticator, Authy)</li>
+      <li>
+        Scan the QR code with an authenticator app (e.g., Google Authenticator,
+        Authy)
+      </li>
       <li>Enter the 6-digit code from the app to verify</li>
     </ol>
-    <p>Once enabled, you'll need to enter a code from your authenticator app each time you log in.</p>
+    <p>
+      Once enabled, you'll need to enter a code from your authenticator app each
+      time you log in.
+    </p>
   </div>
 );
 
 function ProfileManagement() {
   const [user, setUser] = useState({
-    name: '',
-    email: '',
-    userType: '',
-    twoFactorEnabled: false
+    name: "",
+    email: "",
+    userType: "",
+    twoFactorEnabled: false,
   });
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [showTwoFA, setShowTwoFA] = useState(false);
-  const [twoFASecret, setTwoFASecret] = useState('');
-  const [twoFAQRCode, setTwoFAQRCode] = useState('');
+  const [twoFASecret, setTwoFASecret] = useState("");
+  const [twoFAQRCode, setTwoFAQRCode] = useState("");
   const [show2FAInfo, setShow2FAInfo] = useState(false);
 
   useEffect(() => {
@@ -44,12 +59,12 @@ function ProfileManagement() {
 
   const fetchUserData = async () => {
     try {
-      const response = await axios.get('/api/user', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      const response = await axios.get("/api/user", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       setUser(response.data);
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      console.error("Error fetching user data:", error);
     }
   };
 
@@ -60,45 +75,61 @@ function ProfileManagement() {
     const confirmPassword = e.target.confirmPassword.value;
 
     if (newPassword !== confirmPassword) {
-      alert('New passwords do not match');
+      alert("New passwords do not match");
       return;
     }
 
     try {
-      await axios.post('/api/change-password', {
-        currentPassword,
-        newPassword
-      }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
-      alert('Password changed successfully');
+      await axios.post(
+        "/api/change-password",
+        {
+          currentPassword,
+          newPassword,
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        },
+      );
+      alert("Password changed successfully");
       setShowPasswordChange(false);
     } catch (error) {
-      alert('Error changing password');
-      console.error('Error changing password:', error);
+      alert("Error changing password");
+      console.error("Error changing password:", error);
     }
   };
 
   const handleToggle2FA = async () => {
     try {
       if (user.twoFactorEnabled) {
-        await axios.post('/api/disable-2fa', {}, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
+        await axios.post(
+          "/api/disable-2fa",
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          },
+        );
         setUser({ ...user, twoFactorEnabled: false });
-        setTwoFASecret('');
-        setTwoFAQRCode('');
+        setTwoFASecret("");
+        setTwoFAQRCode("");
       } else {
-        const response = await axios.post('/api/enable-2fa', {}, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
+        const response = await axios.post(
+          "/api/enable-2fa",
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          },
+        );
         setTwoFASecret(response.data.secret);
         setTwoFAQRCode(response.data.qrCode);
         setShowTwoFA(true);
       }
     } catch (error) {
-      alert('Error toggling 2FA');
-      console.error('Error toggling 2FA:', error);
+      alert("Error toggling 2FA");
+      console.error("Error toggling 2FA:", error);
     }
   };
 
@@ -106,15 +137,19 @@ function ProfileManagement() {
     e.preventDefault();
     const token = e.target.token.value;
     try {
-      await axios.post('/api/verify-2fa', { token }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      await axios.post(
+        "/api/verify-2fa",
+        { token },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        },
+      );
       setUser({ ...user, twoFactorEnabled: true });
       setShowTwoFA(false);
-      alert('2FA enabled successfully');
+      alert("2FA enabled successfully");
     } catch (error) {
-      alert('Error verifying 2FA token');
-      console.error('Error verifying 2FA token:', error);
+      alert("Error verifying 2FA token");
+      console.error("Error verifying 2FA token:", error);
     }
   };
 
@@ -181,20 +216,22 @@ function ProfileManagement() {
       </div>
 
       <div>
-        <h3 className="text-lg font-semibold mb-2">Two-Factor Authentication</h3>
+        <h3 className="text-lg font-semibold mb-2">
+          Two-Factor Authentication
+        </h3>
         <button
           onClick={() => setShow2FAInfo(!show2FAInfo)}
           className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300 mr-2"
         >
           <FaInfoCircle className="inline-block mr-2" />
-          {show2FAInfo ? 'Hide 2FA Info' : 'Learn about 2FA'}
+          {show2FAInfo ? "Hide 2FA Info" : "Learn about 2FA"}
         </button>
         <button
           onClick={handleToggle2FA}
           className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-300"
         >
           <FaShieldAlt className="inline-block mr-2" />
-          {user.twoFactorEnabled ? 'Disable 2FA' : 'Enable 2FA'}
+          {user.twoFactorEnabled ? "Disable 2FA" : "Enable 2FA"}
         </button>
         {show2FAInfo && <TwoFAEducation />}
         {showTwoFA && !user.twoFactorEnabled && (

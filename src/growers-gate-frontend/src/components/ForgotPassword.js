@@ -1,23 +1,28 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 function ForgotPassword() {
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
     // TODO: Implement password reset logic
-    console.log('Password reset requested for:', email);
-    setMessage('If an account exists for this email, you will receive password reset instructions.');
+    console.log("Password reset requested for:", email);
+    setMessage(
+      "If an account exists for this email, you will receive password reset instructions.",
+    );
   };
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Forgot your password?</h2>
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          Forgot your password?
+        </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Enter your email address and we'll send you instructions to reset your password.
+          Enter your email address and we'll send you instructions to reset your
+          password.
         </p>
       </div>
 
@@ -25,7 +30,10 @@ function ForgotPassword() {
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Email address
               </label>
               <div className="mt-1">
@@ -64,14 +72,15 @@ function ForgotPassword() {
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">
-                  Or
-                </span>
+                <span className="px-2 bg-white text-gray-500">Or</span>
               </div>
             </div>
 
             <div className="mt-6 text-center">
-              <Link to="/login" className="font-medium text-green-600 hover:text-green-500">
+              <Link
+                to="/login"
+                className="font-medium text-green-600 hover:text-green-500"
+              >
                 Back to login
               </Link>
             </div>
