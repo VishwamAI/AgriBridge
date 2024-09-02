@@ -45,16 +45,16 @@
   - [x] Enable/disable 2FA option
 - [x] Implement actual 2FA functionality (app-based)
 - [x] Implement 2FA in development management
-- [ ] Add user education about 2FA setup in profile
+- [x] Add user education about 2FA setup in profile
 
 ## Dashboard Components
 - [x] Farmer Dashboard
   - [x] Basic product management
-  - [ ] Order management
+  - [x] Order management
   - [x] Profile update
     - [x] Implement 2FA setup and management
-  - [ ] Support request
-  - [ ] Analytics and insights
+  - [x] Support request
+  - [x] Analytics and insights
 - [x] User Dashboard
   - [x] Profile management
     - [x] Implement 2FA setup and management
@@ -63,23 +63,23 @@
   - [x] Review management
   - [x] Payment management
   - [x] Wishlist management
-- [ ] Admin Dashboard
-  - [ ] Product management (all listings)
-  - [ ] Order management (all orders)
-  - [ ] User management
-    - [ ] Implement 2FA management for all users
-  - [ ] Support management
-  - [ ] Analytics and reporting
-- [ ] Community Dashboard
-  - [ ] Profile management
-    - [ ] Implement 2FA setup and management
-  - [ ] Product management
-  - [ ] Order management
-  - [ ] Cart management
-  - [ ] Checkout process
-  - [ ] Payment management
-  - [ ] Review management
-  - [ ] Community forums or discussion boards
+- [x] Admin Dashboard
+  - [x] Product management (all listings)
+  - [x] Order management (all orders)
+  - [x] User management
+    - [x] Implement 2FA management for all users
+  - [x] Support management
+  - [x] Analytics and reporting
+- [x] Community Dashboard
+  - [x] Profile management
+    - [x] Implement 2FA setup and management
+  - [x] Product management
+  - [x] Order management
+  - [x] Cart management
+  - [x] Checkout process
+  - [x] Payment management
+  - [x] Review management
+  - [x] Community forums or discussion boards
 - [x] Rider Dashboard
   - [x] Order Management
     - [x] View current and upcoming delivery assignments
@@ -88,7 +88,7 @@
     - [x] Implement OTP verification for order status updates
   - [x] Profile Management
     - [x] Update personal information
-    - [ ] View and manage payment details
+    - [x] View and manage payment details
   - [x] Support
     - [x] Request assistance
     - [x] Report issues

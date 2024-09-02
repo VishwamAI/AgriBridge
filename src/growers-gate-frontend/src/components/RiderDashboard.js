@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FaClipboardList, FaUser, FaHeadset, FaBell, FaChartLine } from 'react-icons/fa';
+import { FaClipboardList, FaUser, FaHeadset, FaBell, FaChartLine, FaCreditCard } from 'react-icons/fa';
 import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:3001'; // Replace with your actual API base URL
@@ -19,6 +19,8 @@ function RiderDashboard() {
         return <Notifications />;
       case 'analytics':
         return <Analytics />;
+      case 'payments':
+        return <PaymentManagement />;
       default:
         return <div>Select a tab to view content</div>;
     }
@@ -69,6 +71,14 @@ function RiderDashboard() {
                   className={`w-full text-left px-4 py-2 rounded-md ${activeTab === 'analytics' ? 'bg-blue-500 text-white' : 'hover:bg-blue-100'}`}
                 >
                   <FaChartLine className="inline-block mr-2" /> Analytics
+                </button>
+              </li>
+              <li className="mb-2">
+                <button
+                  onClick={() => setActiveTab('payments')}
+                  className={`w-full text-left px-4 py-2 rounded-md ${activeTab === 'payments' ? 'bg-blue-500 text-white' : 'hover:bg-blue-100'}`}
+                >
+                  <FaCreditCard className="inline-block mr-2" /> Payments
                 </button>
               </li>
             </ul>
@@ -243,5 +253,61 @@ const ProfileManagement = () => <div>Profile Management Component</div>;
 const SupportRequest = () => <div>Support Request Component</div>;
 const Notifications = () => <div>Notifications Component</div>;
 const Analytics = () => <div>Analytics Component</div>;
+
+const PaymentManagement = () => {
+  const [payments, setPayments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchPayments = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('No authentication token found');
+        }
+        const response = await axios.get(`${API_BASE_URL}/rider/payments`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setPayments(response.data);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching payment details:', err);
+        setError(`Failed to fetch payment details: ${err.message}`);
+        setLoading(false);
+      }
+    };
+
+    fetchPayments();
+  }, []);
+
+  if (loading) return <div>Loading payment details...</div>;
+  if (error) return <div className="text-red-500">{error}</div>;
+
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-4">Payment Management</h2>
+      <table className="w-full border-collapse">
+        <thead>
+          <tr className="bg-blue-500 text-white">
+            <th className="p-2">Date</th>
+            <th className="p-2">Amount</th>
+            <th className="p-2">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {payments.map((payment, index) => (
+            <tr key={index} className="border-b">
+              <td className="p-2">{new Date(payment.date).toLocaleDateString()}</td>
+              <td className="p-2">${payment.amount.toFixed(2)}</td>
+              <td className="p-2">{payment.status}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
 
 export default RiderDashboard;

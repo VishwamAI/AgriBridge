@@ -597,4 +597,38 @@ process.on('SIGINT', async () => {
   process.exit(0);
 });
 
+// Farmer Analytics API endpoints
+app.get('/api/farmer/analytics/sales', authenticateJWT, (req, res) => {
+  const dummySalesData = {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    data: [1000, 1500, 1200, 1800, 2000, 2200]
+  };
+  res.json(dummySalesData);
+});
+
+app.get('/api/farmer/analytics/products', authenticateJWT, (req, res) => {
+  const dummyProductData = {
+    labels: ['Tomatoes', 'Carrots', 'Lettuce', 'Cucumbers', 'Peppers'],
+    data: [500, 300, 400, 200, 350]
+  };
+  res.json(dummyProductData);
+});
+
+app.get('/api/farmer/analytics/customers', authenticateJWT, (req, res) => {
+  const dummyCustomerData = {
+    labels: ['New', 'Returning', 'Frequent'],
+    data: [30, 50, 20]
+  };
+  res.json(dummyCustomerData);
+});
+
+app.get('/rider/payments', authenticateJWT, (req, res) => {
+  const dummyPaymentData = [
+    { date: new Date('2023-05-01'), amount: 150.00, status: 'Completed' },
+    { date: new Date('2023-05-15'), amount: 200.50, status: 'Pending' },
+    { date: new Date('2023-05-30'), amount: 175.25, status: 'Completed' }
+  ];
+  res.json(dummyPaymentData);
+});
+
 module.exports = app;
