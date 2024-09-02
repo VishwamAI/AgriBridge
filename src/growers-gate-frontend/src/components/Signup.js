@@ -218,7 +218,7 @@ function Signup() {
                 I agree to the{" "}
                 <button
                   type="button"
-                  onClick={() => window.open('/terms-and-conditions', '_blank')}
+                  onClick={() => window.open("/terms-and-conditions", "_blank")}
                   className="font-medium text-green-600 hover:text-green-500"
                 >
                   Terms and Conditions

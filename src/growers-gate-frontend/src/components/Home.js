@@ -304,13 +304,28 @@ function Home() {
             <div>
               <h3 className="text-xl font-semibold mb-4">Follow Us</h3>
               <div className="flex space-x-4">
-                <button onClick={() => window.open('https://facebook.com/growersgate', '_blank')} className="hover:text-green-500">
+                <button
+                  onClick={() =>
+                    window.open("https://facebook.com/growersgate", "_blank")
+                  }
+                  className="hover:text-green-500"
+                >
                   Facebook
                 </button>
-                <button onClick={() => window.open('https://twitter.com/growersgate', '_blank')} className="hover:text-green-500">
+                <button
+                  onClick={() =>
+                    window.open("https://twitter.com/growersgate", "_blank")
+                  }
+                  className="hover:text-green-500"
+                >
                   Twitter
                 </button>
-                <button onClick={() => window.open('https://instagram.com/growersgate', '_blank')} className="hover:text-green-500">
+                <button
+                  onClick={() =>
+                    window.open("https://instagram.com/growersgate", "_blank")
+                  }
+                  className="hover:text-green-500"
+                >
                   Instagram
                 </button>
               </div>
