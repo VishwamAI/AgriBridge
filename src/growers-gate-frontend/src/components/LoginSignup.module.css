@@ -38,7 +38,7 @@
 }
 
 .submitButton {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   padding: 0.8rem;
   border: none;
@@ -60,7 +60,7 @@
 .switchButton {
   background: none;
   border: none;
-  color: #4CAF50;
+  color: #4caf50;
   text-decoration: underline;
   cursor: pointer;
 }

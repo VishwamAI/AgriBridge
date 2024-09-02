@@ -1,5 +1,5 @@
-import React from 'react';
-import { FaChartLine, FaUsers, FaShoppingCart } from 'react-icons/fa';
+import React from "react";
+import { FaChartLine, FaUsers, FaShoppingCart } from "react-icons/fa";
 
 function Analytics({ data }) {
   return (

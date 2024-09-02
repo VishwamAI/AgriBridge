@@ -31,6 +31,9 @@ jobs:
         cd src/growers-gate-frontend
         npm ci
     - name: Run linter
+      env:
+        NODE_ENV: production
+        BABEL_ENV: production
       run: |
         cd src/growers-gate-frontend
         npm run lint
@@ -64,6 +67,9 @@ jobs:
         cd src/growers-gate-frontend
         npm ci
     - name: Run frontend tests
+      env:
+        NODE_ENV: test
+        BABEL_ENV: test
       run: |
         cd src/growers-gate-frontend
         npm test -- --coverage
@@ -75,25 +81,37 @@ jobs:
     needs: lint
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
       with:
-        python-version: '3.x'
-    - name: Cache pip packages
+        node-version: '18.x'
+    - name: Cache node modules
       uses: actions/cache@v2
+      env:
+        cache-name: cache-node-modules
       with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        path: ~/.npm
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
-          ${{ runner.os }}-pip-
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+    - name: Start MongoDB
+      uses: supercharge/mongodb-github-action@1.10.0
+      with:
+        mongodb-version: '6.0'
     - name: Install backend dependencies
       run: |
         cd src/growers-gate-backend
-        pip install -r requirements.txt
+        npm ci
     - name: Run backend tests
+      env:
+        MONGODB_URI: mongodb://localhost:27017/growers_gate_test
+        JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        OTP_SECRET: ${{ secrets.OTP_SECRET }}
       run: |
         cd src/growers-gate-backend
-        python -m pytest --cov=./ --cov-report=xml
+        npm test -- --coverage
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
 

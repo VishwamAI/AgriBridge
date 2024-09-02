@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { FaSearch, FaPlus } from 'react-icons/fa';
+import React, { useState } from "react";
+import { FaSearch, FaPlus } from "react-icons/fa";
 
 /**
  * Products Component
@@ -8,13 +8,13 @@ import { FaSearch, FaPlus } from 'react-icons/fa';
  * It includes a search bar, product grid, and placeholders for product management functionality.
  */
 function Products() {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Mock product data (replace with API call in production)
   const products = [
-    { id: 1, name: 'Organic Apples', price: 5.99, stock: 100 },
-    { id: 2, name: 'Fresh Carrots', price: 3.49, stock: 150 },
-    { id: 3, name: 'Artisan Bread', price: 4.99, stock: 50 },
+    { id: 1, name: "Organic Apples", price: 5.99, stock: 100 },
+    { id: 2, name: "Fresh Carrots", price: 3.49, stock: 150 },
+    { id: 3, name: "Artisan Bread", price: 4.99, stock: 50 },
     // Add more mock products as needed
   ];
 
@@ -42,13 +42,22 @@ function Products() {
       {/* Product grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.map((product) => (
-          <div key={product.id} className="bg-gray-100 p-4 rounded-lg shadow hover:shadow-md transition duration-300">
+          <div
+            key={product.id}
+            className="bg-gray-100 p-4 rounded-lg shadow hover:shadow-md transition duration-300"
+          >
             <h3 className="text-lg font-semibold mb-2">{product.name}</h3>
-            <p className="text-gray-600 mb-2">Price: ${product.price.toFixed(2)}</p>
+            <p className="text-gray-600 mb-2">
+              Price: ${product.price.toFixed(2)}
+            </p>
             <p className="text-gray-600">Stock: {product.stock}</p>
             <div className="mt-4 flex justify-between">
-              <button className="text-blue-500 hover:text-blue-700">Edit</button>
-              <button className="text-red-500 hover:text-red-700">Delete</button>
+              <button className="text-blue-500 hover:text-blue-700">
+                Edit
+              </button>
+              <button className="text-red-500 hover:text-red-700">
+                Delete
+              </button>
             </div>
           </div>
         ))}

@@ -1,15 +1,15 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Home from './components/Home';
-import Login from './components/Login';
-import Signup from './components/Signup';
-import ForgotPassword from './components/ForgotPassword';
-import TwoFAManagement from './components/TwoFAManagement';
-import FarmerDashboard from './components/FarmerDashboard';
-import UserDashboard from './components/UserDashboard';
-import AdminDashboard from './components/AdminDashboard';
-import CommunityDashboard from './components/CommunityDashboard';
-import RiderDashboard from './components/RiderDashboard';
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Home from "./components/Home";
+import Login from "./components/Login";
+import Signup from "./components/Signup";
+import ForgotPassword from "./components/ForgotPassword";
+import TwoFAManagement from "./components/TwoFAManagement";
+import FarmerDashboard from "./components/FarmerDashboard";
+import UserDashboard from "./components/UserDashboard";
+import AdminDashboard from "./components/AdminDashboard";
+import CommunityDashboard from "./components/CommunityDashboard";
+import RiderDashboard from "./components/RiderDashboard";
 
 function App() {
   return (

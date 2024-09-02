@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom";
 
 /**
  * Home Component
@@ -13,12 +13,25 @@ function Home() {
       {/* Navigation Bar */}
       <nav className="bg-green-600 text-white p-4">
         <div className="container mx-auto flex justify-between items-center">
-          <Link to="/" className="text-2xl font-bold">Growers Gate</Link>
+          <Link to="/" className="text-2xl font-bold">
+            Growers Gate
+          </Link>
           <div className="space-x-4">
-            <Link to="/about" className="hover:text-green-200">About</Link>
-            <Link to="/products" className="hover:text-green-200">Products</Link>
-            <Link to="/login" className="hover:text-green-200">Login</Link>
-            <Link to="/signup" className="bg-white text-green-600 px-4 py-2 rounded-full hover:bg-green-100">Sign Up</Link>
+            <Link to="/about" className="hover:text-green-200">
+              About
+            </Link>
+            <Link to="/products" className="hover:text-green-200">
+              Products
+            </Link>
+            <Link to="/login" className="hover:text-green-200">
+              Login
+            </Link>
+            <Link
+              to="/signup"
+              className="bg-white text-green-600 px-4 py-2 rounded-full hover:bg-green-100"
+            >
+              Sign Up
+            </Link>
           </div>
         </div>
       </nav>
@@ -28,14 +41,26 @@ function Home() {
         <div className="container mx-auto text-center">
           <h1 className="text-4xl font-bold mb-4">Welcome to Growers Gate</h1>
           <p className="text-xl mb-4">
-            Connect directly with local farmers and get fresh produce delivered to your doorstep.
+            Connect directly with local farmers and get fresh produce delivered
+            to your doorstep.
           </p>
           <p className="text-lg mb-8">
-            As a nonprofit organization, we're committed to improving O2 levels and creating a sustainable future for agriculture.
+            As a nonprofit organization, we're committed to improving O2 levels
+            and creating a sustainable future for agriculture.
           </p>
           <div className="space-x-4">
-            <Link to="/signup" className="bg-white text-green-600 px-6 py-3 rounded-full font-semibold hover:bg-green-100">Sign Up</Link>
-            <Link to="/about" className="border-2 border-white text-white px-6 py-3 rounded-full font-semibold hover:bg-green-600">Learn More</Link>
+            <Link
+              to="/signup"
+              className="bg-white text-green-600 px-6 py-3 rounded-full font-semibold hover:bg-green-100"
+            >
+              Sign Up
+            </Link>
+            <Link
+              to="/about"
+              className="border-2 border-white text-white px-6 py-3 rounded-full font-semibold hover:bg-green-600"
+            >
+              Learn More
+            </Link>
           </div>
         </div>
       </section>
@@ -43,16 +68,29 @@ function Home() {
       {/* Featured Products Section: Displays a carousel of featured products */}
       <section className="py-16 bg-white">
         <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-8">Featured Products</h2>
+          <h2 className="text-3xl font-bold text-center mb-8">
+            Featured Products
+          </h2>
           <div className="flex overflow-x-auto space-x-6 pb-4">
             {/* TODO: Replace with actual product data from API or state management */}
             {[1, 2, 3, 4, 5].map((product) => (
-              <div key={product} className="flex-shrink-0 w-64 bg-white rounded-lg shadow-md overflow-hidden">
-                <img src={`https://via.placeholder.com/300x200?text=Product${product}`} alt={`Product ${product}`} className="w-full h-48 object-cover" />
+              <div
+                key={product}
+                className="flex-shrink-0 w-64 bg-white rounded-lg shadow-md overflow-hidden"
+              >
+                <img
+                  src={`https://via.placeholder.com/300x200?text=Product${product}`}
+                  alt={`Product ${product}`}
+                  className="w-full h-48 object-cover"
+                />
                 <div className="p-4">
-                  <h3 className="font-semibold text-lg mb-2">Product {product}</h3>
+                  <h3 className="font-semibold text-lg mb-2">
+                    Product {product}
+                  </h3>
                   <p className="text-green-600 font-bold mb-2">$9.99</p>
-                  <button className="w-full bg-green-500 text-white py-2 rounded-full hover:bg-green-600 transition duration-300">Add to Cart</button>
+                  <button className="w-full bg-green-500 text-white py-2 rounded-full hover:bg-green-600 transition duration-300">
+                    Add to Cart
+                  </button>
                 </div>
               </div>
             ))}
@@ -65,20 +103,35 @@ function Home() {
         <div className="container mx-auto text-center">
           <h2 className="text-3xl font-bold mb-8">About Growers Gate</h2>
           <p className="text-xl mb-8">
-            Growers Gate is on a mission to revolutionize the way people access fresh, local produce. We connect consumers directly with farmers, ensuring fair prices and supporting local agriculture. Our innovative approach includes flood mitigation techniques using AI and ongoing developments in agricultural innovation.
+            Growers Gate is on a mission to revolutionize the way people access
+            fresh, local produce. We connect consumers directly with farmers,
+            ensuring fair prices and supporting local agriculture. Our
+            innovative approach includes flood mitigation techniques using AI
+            and ongoing developments in agricultural innovation.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white p-6 rounded-lg shadow-md">
               <h3 className="text-xl font-semibold mb-4">Our Mission</h3>
-              <p>To create a sustainable food ecosystem that benefits both farmers and consumers while improving environmental conditions.</p>
+              <p>
+                To create a sustainable food ecosystem that benefits both
+                farmers and consumers while improving environmental conditions.
+              </p>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md">
               <h3 className="text-xl font-semibold mb-4">Our Vision</h3>
-              <p>A world where everyone has access to fresh, locally-sourced produce at fair prices, supported by cutting-edge agricultural technology.</p>
+              <p>
+                A world where everyone has access to fresh, locally-sourced
+                produce at fair prices, supported by cutting-edge agricultural
+                technology.
+              </p>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md">
               <h3 className="text-xl font-semibold mb-4">Our Approach</h3>
-              <p>We leverage AI for flood mitigation, focus on agricultural innovation, and collaborate with the VishwamAI opensource GitHub community to drive sustainable farming practices.</p>
+              <p>
+                We leverage AI for flood mitigation, focus on agricultural
+                innovation, and collaborate with the VishwamAI opensource GitHub
+                community to drive sustainable farming practices.
+              </p>
             </div>
           </div>
         </div>
@@ -90,19 +143,36 @@ function Home() {
           <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
-              <div className="bg-green-500 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">1</div>
+              <div className="bg-green-500 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                1
+              </div>
               <h3 className="text-xl font-semibold mb-2">Browse Products</h3>
-              <p>Explore a wide range of fresh, locally-sourced produce from farmers in your area.</p>
+              <p>
+                Explore a wide range of fresh, locally-sourced produce from
+                farmers in your area.
+              </p>
             </div>
             <div className="text-center">
-              <div className="bg-green-500 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">2</div>
+              <div className="bg-green-500 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                2
+              </div>
               <h3 className="text-xl font-semibold mb-2">Place Your Order</h3>
-              <p>Select your desired products and place an order directly with the farmer.</p>
+              <p>
+                Select your desired products and place an order directly with
+                the farmer.
+              </p>
             </div>
             <div className="text-center">
-              <div className="bg-green-500 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">3</div>
-              <h3 className="text-xl font-semibold mb-2">Receive Fresh Produce</h3>
-              <p>Get your order delivered to your doorstep or pick it up from a convenient location.</p>
+              <div className="bg-green-500 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                3
+              </div>
+              <h3 className="text-xl font-semibold mb-2">
+                Receive Fresh Produce
+              </h3>
+              <p>
+                Get your order delivered to your doorstep or pick it up from a
+                convenient location.
+              </p>
             </div>
           </div>
         </div>
@@ -111,14 +181,26 @@ function Home() {
       {/* Testimonials Section */}
       <section className="py-16 bg-gray-100">
         <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">What Our Users Say</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">
+            What Our Users Say
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="bg-white p-6 rounded-lg shadow-md">
-              <p className="mb-4">"Growers Gate has transformed the way I source fresh produce for my restaurant. The quality is unmatched, and I love supporting local farmers."</p>
-              <p className="font-semibold">- Chef Maria, Local Restaurant Owner</p>
+              <p className="mb-4">
+                "Growers Gate has transformed the way I source fresh produce for
+                my restaurant. The quality is unmatched, and I love supporting
+                local farmers."
+              </p>
+              <p className="font-semibold">
+                - Chef Maria, Local Restaurant Owner
+              </p>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md">
-              <p className="mb-4">"As a small-scale farmer, Growers Gate has given me a platform to reach more customers and grow my business. It's been a game-changer."</p>
+              <p className="mb-4">
+                "As a small-scale farmer, Growers Gate has given me a platform
+                to reach more customers and grow my business. It's been a
+                game-changer."
+              </p>
               <p className="font-semibold">- John, Organic Farmer</p>
             </div>
           </div>
@@ -128,7 +210,9 @@ function Home() {
       {/* Benefits Section */}
       <section className="py-16 bg-white">
         <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">Benefits of Using Growers Gate</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">
+            Benefits of Using Growers Gate
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
               <h3 className="text-2xl font-semibold mb-4">For Consumers</h3>
@@ -156,11 +240,23 @@ function Home() {
       <section className="py-16 bg-green-500 text-white">
         <div className="container mx-auto text-center">
           <h2 className="text-3xl font-bold mb-4">Stay Updated</h2>
-          <p className="mb-8">Subscribe to our newsletter for the latest updates, seasonal produce information, and exclusive offers.</p>
+          <p className="mb-8">
+            Subscribe to our newsletter for the latest updates, seasonal produce
+            information, and exclusive offers.
+          </p>
           <form className="max-w-md mx-auto">
             <div className="flex">
-              <input type="email" placeholder="Enter your email" className="flex-grow px-4 py-2 rounded-l-full focus:outline-none focus:ring-2 focus:ring-green-600" />
-              <button type="submit" className="bg-green-600 text-white px-6 py-2 rounded-r-full hover:bg-green-700 transition duration-300">Subscribe</button>
+              <input
+                type="email"
+                placeholder="Enter your email"
+                className="flex-grow px-4 py-2 rounded-l-full focus:outline-none focus:ring-2 focus:ring-green-600"
+              />
+              <button
+                type="submit"
+                className="bg-green-600 text-white px-6 py-2 rounded-r-full hover:bg-green-700 transition duration-300"
+              >
+                Subscribe
+              </button>
             </div>
           </form>
         </div>
@@ -178,10 +274,26 @@ function Home() {
             <div>
               <h3 className="text-xl font-semibold mb-4">Quick Links</h3>
               <ul className="space-y-2">
-                <li><Link to="/about" className="hover:text-green-500">About Us</Link></li>
-                <li><Link to="/products" className="hover:text-green-500">Products</Link></li>
-                <li><Link to="/farmers" className="hover:text-green-500">Our Farmers</Link></li>
-                <li><Link to="/faq" className="hover:text-green-500">FAQ</Link></li>
+                <li>
+                  <Link to="/about" className="hover:text-green-500">
+                    About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/products" className="hover:text-green-500">
+                    Products
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/farmers" className="hover:text-green-500">
+                    Our Farmers
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/faq" className="hover:text-green-500">
+                    FAQ
+                  </Link>
+                </li>
               </ul>
             </div>
             <div>
@@ -192,16 +304,41 @@ function Home() {
             <div>
               <h3 className="text-xl font-semibold mb-4">Follow Us</h3>
               <div className="flex space-x-4">
-                <a href="#" className="hover:text-green-500">Facebook</a>
-                <a href="#" className="hover:text-green-500">Twitter</a>
-                <a href="#" className="hover:text-green-500">Instagram</a>
+                <button
+                  onClick={() =>
+                    window.open("https://facebook.com/growersgate", "_blank")
+                  }
+                  className="hover:text-green-500"
+                >
+                  Facebook
+                </button>
+                <button
+                  onClick={() =>
+                    window.open("https://twitter.com/growersgate", "_blank")
+                  }
+                  className="hover:text-green-500"
+                >
+                  Twitter
+                </button>
+                <button
+                  onClick={() =>
+                    window.open("https://instagram.com/growersgate", "_blank")
+                  }
+                  className="hover:text-green-500"
+                >
+                  Instagram
+                </button>
               </div>
             </div>
           </div>
           <div className="mt-8 text-center">
             <p>&copy; 2023 Growers Gate. All rights reserved.</p>
-            <p className="mt-2 text-sm">Developed by the VishwamAI opensource GitHub community</p>
-            <p className="mt-1 text-sm">Special thanks to kasinadhsarma for their contributions</p>
+            <p className="mt-2 text-sm">
+              Developed by the VishwamAI opensource GitHub community
+            </p>
+            <p className="mt-1 text-sm">
+              Special thanks to kasinadhsarma for their contributions
+            </p>
           </div>
         </div>
       </footer>
