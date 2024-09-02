@@ -8,7 +8,7 @@
 
 .heroSection {
   width: 100%;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   padding: 4rem 2rem;
   text-align: center;
@@ -38,7 +38,7 @@
 .ctaButton {
   display: inline-block;
   background-color: white;
-  color: #4CAF50;
+  color: #4caf50;
   padding: 0.8rem 1.5rem;
   text-decoration: none;
   border-radius: 5px;
@@ -105,6 +105,6 @@
 }
 
 .productPrice {
-  color: #4CAF50;
+  color: #4caf50;
   font-weight: bold;
 }
