@@ -6,13 +6,20 @@ import {
   FaBell,
   FaChartLine,
   FaCreditCard,
+  FaBook,
 } from "react-icons/fa";
 import axios from "axios";
+import config from "../config";
+import { getAuthHeader, setupTokenRefresh } from "../utils/tokenUtils";
 
-const API_BASE_URL = "http://localhost:3001"; // Replace with your actual API base URL
+const API_BASE_URL = config.API_URL;
 
 function RiderDashboard() {
   const [activeTab, setActiveTab] = useState("orders");
+
+  useEffect(() => {
+    setupTokenRefresh();
+  }, []);
 
   const renderContent = () => {
     switch (activeTab) {
@@ -28,6 +35,8 @@ function RiderDashboard() {
         return <Analytics />;
       case "payments":
         return <PaymentManagement />;
+      case "knowledgeBase":
+        return <KnowledgeBase />;
       default:
         return <div>Select a tab to view content</div>;
     }
@@ -86,6 +95,14 @@ function RiderDashboard() {
                   className={`w-full text-left px-4 py-2 rounded-md ${activeTab === "payments" ? "bg-blue-500 text-white" : "hover:bg-blue-100"}`}
                 >
                   <FaCreditCard className="inline-block mr-2" /> Payments
+                </button>
+              </li>
+              <li className="mb-2">
+                <button
+                  onClick={() => setActiveTab("knowledgeBase")}
+                  className={`w-full text-left px-4 py-2 rounded-md ${activeTab === "knowledgeBase" ? "bg-blue-500 text-white" : "hover:bg-blue-100"}`}
+                >
+                  <FaBook className="inline-block mr-2" /> Knowledge Base
                 </button>
               </li>
             </ul>
@@ -159,13 +176,17 @@ const OrderManagement = () => {
     setLoading(true);
     setError("");
     try {
-      const response = await axios.get(`${API_BASE_URL}/orders`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      const headers = await getAuthHeader();
+      const response = await axios.get(`${API_BASE_URL}/orders`, { headers });
       setOrders(response.data);
     } catch (err) {
-      setError("Failed to fetch orders. Please try again.");
-      console.error("Error fetching orders:", err);
+      if (err.response && err.response.status === 401) {
+        setError("Authentication failed. Please log in again.");
+        // Redirect to login page or handle token expiration
+      } else {
+        setError("Failed to fetch orders. Please try again.");
+        console.error("Error fetching orders:", err);
+      }
     } finally {
       setLoading(false);
     }
@@ -178,12 +199,11 @@ const OrderManagement = () => {
   const updateOrderStatus = async (orderId, newStatus) => {
     setError("");
     try {
+      const headers = await getAuthHeader();
       const response = await axios.post(
         `${API_BASE_URL}/generate-rider-otp`,
         { orderId },
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        },
+        { headers }
       );
       setOtp(response.data.otp);
       setShowOTP(true);
@@ -192,8 +212,13 @@ const OrderManagement = () => {
         pendingStatus: newStatus,
       }));
     } catch (err) {
-      setError("Failed to generate OTP. Please try again.");
-      console.error("Error generating OTP:", err);
+      if (err.response && err.response.status === 401) {
+        setError("Authentication failed. Please log in again.");
+        // Redirect to login page or handle token expiration
+      } else {
+        setError("Failed to generate OTP. Please try again.");
+        console.error("Error generating OTP:", err);
+      }
     }
   };
 
@@ -203,15 +228,14 @@ const OrderManagement = () => {
       if (enteredOtp !== otp) {
         throw new Error("Invalid OTP");
       }
+      const headers = await getAuthHeader();
       await axios.post(
         `${API_BASE_URL}/update-order-status`,
         {
           orderId: selectedOrder.id,
           newStatus: selectedOrder.pendingStatus,
         },
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        },
+        { headers },
       );
       setOrders((prevOrders) =>
         prevOrders.map((order) =>
@@ -224,7 +248,12 @@ const OrderManagement = () => {
       setSelectedOrder(null);
       setOtp("");
     } catch (err) {
-      setError("Failed to verify OTP. Please try again.");
+      if (err.response && err.response.status === 401) {
+        setError("Authentication failed. Please log in again.");
+        // Redirect to login page or refresh token
+      } else {
+        setError("Failed to verify OTP. Please try again.");
+      }
       console.error("Error verifying OTP:", err);
     }
   };
@@ -294,18 +323,18 @@ const PaymentManagement = () => {
     const fetchPayments = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem("token");
-        if (!token) {
-          throw new Error("No authentication token found");
-        }
-        const response = await axios.get(`${API_BASE_URL}/rider/payments`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const headers = await getAuthHeader();
+        const response = await axios.get(`${API_BASE_URL}/rider/payments`, { headers });
         setPayments(response.data);
         setLoading(false);
       } catch (err) {
         console.error("Error fetching payment details:", err);
-        setError(`Failed to fetch payment details: ${err.message}`);
+        if (err.response && err.response.status === 401) {
+          setError("Session expired. Please log in again.");
+          // Redirect to login page or show login modal
+        } else {
+          setError(`Failed to fetch payment details: ${err.message}`);
+        }
         setLoading(false);
       }
     };
@@ -339,6 +368,73 @@ const PaymentManagement = () => {
           ))}
         </tbody>
       </table>
+    </div>
+  );
+};
+
+const KnowledgeBase = () => {
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedArticle, setSelectedArticle] = useState(null);
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        setLoading(true);
+        const authHeader = await getAuthHeader();
+        const response = await axios.get(`${API_BASE_URL}/knowledge-base`, {
+          headers: authHeader,
+        });
+        setArticles(response.data);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching knowledge base articles:", err);
+        if (err.response && err.response.status === 401) {
+          setError("Authentication failed. Please log in again.");
+          // Redirect to login page or handle re-authentication
+        } else {
+          setError("Failed to fetch articles. Please try again.");
+        }
+        setLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, []);
+
+  if (loading) return <div>Loading knowledge base...</div>;
+  if (error) return <div className="text-red-500">{error}</div>;
+
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-4">Knowledge Base</h2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="col-span-1">
+          <h3 className="text-xl font-semibold mb-2">Articles</h3>
+          <ul>
+            {articles.map((article) => (
+              <li
+                key={article.id}
+                className="cursor-pointer hover:bg-gray-100 p-2 rounded"
+                onClick={() => setSelectedArticle(article)}
+              >
+                {article.title}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="col-span-2">
+          {selectedArticle ? (
+            <div>
+              <h3 className="text-xl font-semibold mb-2">{selectedArticle.title}</h3>
+              <p>{selectedArticle.content}</p>
+            </div>
+          ) : (
+            <p>Select an article to view its content.</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

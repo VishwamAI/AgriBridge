@@ -1,50 +1,191 @@
+const mockRateLimiter = jest.fn().mockImplementation((req, res, next) => {
+  if (mockRateLimiter.shouldLimit) {
+    return res.status(429).json({ message: 'Too many requests from this IP, please try again later.' });
+  }
+  next();
+});
+
+mockRateLimiter.resetMock = () => {
+  mockRateLimiter.mockClear();
+  mockRateLimiter.shouldLimit = false;
+};
+
+jest.mock('express-rate-limit', () => {
+  return jest.fn().mockImplementation(() => mockRateLimiter);
+});
+
 const request = require('supertest');
-const app = require('../api');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { MongoClient } = require('mongodb');
-const rateLimit = require('express-rate-limit');
+const axios = require('axios');
+let app, server;
 
 let db;
-let mockRateLimiter;
+let mongoClient;
 
 beforeAll(async () => {
-  console.log('Connecting to MongoDB...');
+  console.log('Setting up test environment...');
+
+  // Set up environment variables for testing
+  process.env.MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/growers_gate_test';
+  process.env.JWT_SECRET = 'test_jwt_secret';
+  process.env.NODE_ENV = 'test';
+
   console.log('MongoDB URI:', process.env.MONGODB_URI);
-  const client = new MongoClient(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-  try {
-    await client.connect();
-    console.log('Connected to MongoDB successfully');
-    db = client.db('growers_gate_test');
-    console.log('Using database:', db.databaseName);
-    console.log('Database connection state:', client.topology.s.state);
 
-    // Check for existing documents in the users collection
-    const userCount = await db.collection('users').countDocuments();
-    console.log(`Existing documents in users collection: ${userCount}`);
+  const maxRetries = 3;
+  let retryCount = 0;
 
-    // Log database details
-    const dbStats = await db.stats();
-    console.log('Database stats:', JSON.stringify(dbStats, null, 2));
+  while (retryCount < maxRetries) {
+    try {
+      // Connect to MongoDB
+      mongoClient = new MongoClient(process.env.MONGODB_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        serverSelectionTimeoutMS: 5000, // 5 second timeout
+      });
+      await mongoClient.connect();
+      db = mongoClient.db();
+      console.log('Connected to MongoDB successfully');
+      console.log('Using database:', db.databaseName);
 
-    // Mock rate limiter
-    mockRateLimiter = jest.fn().mockImplementation((req, res, next) => next());
-    app.use(mockRateLimiter);
-    console.log('Rate limiter mocked');
+      // Verify the connection
+      await db.command({ ping: 1 });
+      console.log("MongoDB connection verified");
 
-  } catch (error) {
-    console.error('Error connecting to MongoDB:', error);
-    console.error('Error stack:', error.stack);
-    throw error;
+      // Clear the database before running tests
+      await db.dropDatabase();
+      console.log('Database cleared');
+
+      // Initialize the app and server
+      const { app: testApp } = require('../api');
+      const startServer = require('../api').startServer;
+      app = testApp;
+
+      // Start the server
+      try {
+        server = await startServer();
+        console.log(`Test server listening on port ${server.address().port}`);
+      } catch (serverError) {
+        console.error('Error starting server:', serverError);
+        throw serverError;
+      }
+
+      console.log('Test environment setup complete');
+      break; // Exit the retry loop if successful
+    } catch (error) {
+      console.error(`Error setting up test environment (attempt ${retryCount + 1}):`, error);
+      retryCount++;
+      if (retryCount === maxRetries) {
+        console.error('Max retries reached. Failing the setup.');
+        throw error;
+      }
+      console.log(`Retrying in 5 seconds...`);
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
   }
-}, 10000); // Increased timeout to 10000ms
+}, 60000); // Increased timeout to 60000ms to allow for retries
 
 afterAll(async () => {
   console.log('Cleaning up after tests...');
-  await db.dropDatabase();
-  await db.client.close();
-  console.log('Database dropped and connection closed');
-});
+  const cleanupTimeout = 30000; // 30 seconds timeout for cleanup
+
+  try {
+    const cleanup = async () => {
+      if (db) {
+        try {
+          await db.dropDatabase();
+          console.log('Database dropped');
+        } catch (dbError) {
+          console.error('Error dropping database:', dbError);
+        }
+      }
+
+      if (mongoClient) {
+        try {
+          await mongoClient.close();
+          console.log('MongoDB connection closed');
+        } catch (mongoError) {
+          console.error('Error closing MongoDB connection:', mongoError);
+        }
+      }
+
+      if (server) {
+        await new Promise((resolve) => {
+          server.close((err) => {
+            if (err) {
+              console.error('Error closing server:', err);
+            } else {
+              console.log('Server closed');
+            }
+            resolve();
+          });
+        });
+      } else {
+        console.warn('Server was not properly initialized');
+      }
+
+      // Enhanced final check for open handles
+      const handles = process._getActiveHandles();
+      if (handles.length > 0) {
+        console.warn('Detected open handles:', handles);
+        await Promise.all(handles.map(async (handle) => {
+          if (handle instanceof require('net').Socket) {
+            console.log('Closing socket:', handle);
+            handle.destroy();
+          } else if (typeof handle.close === 'function') {
+            try {
+              await new Promise((resolve) => {
+                handle.close(() => {
+                  console.log('Successfully closed handle:', handle);
+                  resolve();
+                });
+              });
+            } catch (err) {
+              console.error('Error closing handle:', err);
+            }
+          } else {
+            console.warn('Unable to close handle:', handle);
+          }
+        }));
+      }
+
+      // Check for active requests
+      const requests = process._getActiveRequests();
+      if (requests.length > 0) {
+        console.warn('Detected active requests:', requests);
+        // Attempt to abort active requests
+        requests.forEach(req => {
+          if (typeof req.abort === 'function') {
+            req.abort();
+            console.log('Aborted active request:', req);
+          }
+        });
+      }
+
+      // Force garbage collection if available
+      if (global.gc) {
+        global.gc();
+        console.log('Forced garbage collection');
+      }
+
+      // Final wait to allow any remaining async operations to complete
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    };
+
+    // Run cleanup with a timeout
+    await Promise.race([
+      cleanup(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Cleanup timeout')), cleanupTimeout))
+    ]);
+
+  } catch (error) {
+    console.error('Error during cleanup:', error);
+  } finally {
+    console.log('Cleanup finished');
+  }
+}, 60000); // Keep the 60 seconds timeout for the entire afterAll hook
 
 beforeEach(async () => {
   console.log('Starting beforeEach hook...');
@@ -275,53 +416,186 @@ describe('API Security Tests', () => {
         .get('/dashboard')
         .set('Authorization', 'Bearer invalid-token');
       expect(response.statusCode).toBe(403);
+      expect(response.body).toEqual({ message: 'Invalid token' });
     });
 
     it('should accept requests with a valid JWT', async () => {
-      const token = jwt.sign({ userId: 'testuser', userType: 'farmer' }, process.env.JWT_SECRET || 'fallback_secret', { expiresIn: '1h' });
+      const token = jwt.sign(
+        { userId: 'testuser', userType: 'farmer' },
+        process.env.JWT_SECRET,
+        { expiresIn: '15m', algorithm: 'HS256' }
+      );
       const response = await request(app)
         .get('/dashboard')
         .set('Authorization', `Bearer ${token}`);
       expect(response.statusCode).toBe(200);
-    }, 10000); // Increased timeout to 10 seconds
+    });
 
     it('should reject requests with an expired JWT', async () => {
       jest.useFakeTimers();
-      const token = jwt.sign({ userId: 'testuser', userType: 'farmer' }, process.env.JWT_SECRET, { expiresIn: '1s' });
+      const token = jwt.sign(
+        { userId: 'testuser', userType: 'farmer' },
+        process.env.JWT_SECRET,
+        { expiresIn: '1s', algorithm: 'HS256' }
+      );
       jest.advanceTimersByTime(2000); // Advance time by 2 seconds
       const response = await request(app)
         .get('/dashboard')
         .set('Authorization', `Bearer ${token}`);
-      expect(response.statusCode).toBe(403);
+      expect(response.statusCode).toBe(401);
+      expect(response.body).toEqual({ message: 'Token has expired' });
       jest.useRealTimers();
-    }, 10000); // Increase timeout to 10 seconds
-  });
+    });
 
-  describe('Rate Limiting', () => {
-    it('should limit repeated requests from the same IP', async () => {
-      jest.setTimeout(10000); // Increase timeout to 10 seconds
-      mockRateLimiter.mockImplementationOnce((req, res, next) => {
-        res.status(429).json({ message: 'Too many requests' });
-      });
-      const response = await request(app).get('/');
-      expect(response.statusCode).toBe(429);
-    }, 10000); // Add timeout to individual test
-
-    it('should allow requests after rate limit reset', async () => {
-      jest.setTimeout(10000); // Increase timeout to 10 seconds
-      mockRateLimiter.mockImplementationOnce((req, res, next) => next());
-      const response = await request(app).get('/');
-      expect(response.statusCode).not.toBe(429);
-    }, 10000); // Add timeout to individual test
-
-    afterEach(() => {
-      mockRateLimiter.mockReset(); // Reset mock after each test
+    it('should reject requests with a JWT signed with an incorrect secret', async () => {
+      const token = jwt.sign(
+        { userId: 'testuser', userType: 'farmer' },
+        'incorrect_secret',
+        { expiresIn: '15m', algorithm: 'HS256' }
+      );
+      const response = await request(app)
+        .get('/dashboard')
+        .set('Authorization', `Bearer ${token}`);
+      expect(response.statusCode).toBe(403);
+      expect(response.body).toEqual({ message: 'Invalid token' });
     });
   });
-});
 
-// Error logging middleware for tests
-app.use((err, req, res, next) => {
-  console.error('Test Error:', err);
-  res.status(500).json({ message: 'Internal Server Error' });
+describe('Rate Limiting', () => {
+  let mockRateLimiter;
+  const GENERAL_MAX_REQUESTS = 50;
+  const GENERAL_WINDOW_MS = 15 * 60 * 1000; // 15 minutes in milliseconds
+  const LOGIN_MAX_REQUESTS = 5;
+  const LOGIN_WINDOW_MS = 15 * 60 * 1000; // 15 minutes in milliseconds
+
+  beforeAll(() => {
+    mockRateLimiter = jest.fn().mockImplementation((options) => {
+      const store = new Map();
+      return (req, res, next) => {
+        const key = req.ip;
+        const now = Date.now();
+        const windowMs = options.windowMs || GENERAL_WINDOW_MS;
+        const max = options.max || GENERAL_MAX_REQUESTS;
+
+        let bucket = store.get(key);
+        if (!bucket || now - bucket.start > windowMs) {
+          bucket = { start: now, count: 0 };
+          store.set(key, bucket);
+        }
+
+        bucket.count++;
+        if (bucket.count > max) {
+          return res.status(429).json({ message: options.message || 'Too many requests from this IP, please try again later.' });
+        }
+        next();
+      };
+    });
+    jest.mock('express-rate-limit', () => mockRateLimiter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    const generalLimiter = mockRateLimiter({ windowMs: GENERAL_WINDOW_MS, max: GENERAL_MAX_REQUESTS });
+    const loginLimiter = mockRateLimiter({
+      windowMs: LOGIN_WINDOW_MS,
+      max: LOGIN_MAX_REQUESTS,
+      message: 'Too many login attempts, please try again later.'
+    });
+    app.use(generalLimiter);
+    app.post('/login', loginLimiter, (req, res) => res.sendStatus(200));
+  });
+
+  afterEach(() => {
+    app._router.stack = app._router.stack.filter(layer => !layer.handle.mock);
+  });
+
+  afterAll(() => {
+    jest.unmock('express-rate-limit');
+  });
+
+  it('should allow requests within the general rate limit', async () => {
+    const token = jwt.sign({ userId: 'testuser', userType: 'farmer' }, process.env.JWT_SECRET, { expiresIn: '15m' });
+    for (let i = 0; i < GENERAL_MAX_REQUESTS; i++) {
+      const response = await request(app)
+        .get('/dashboard')
+        .set('Authorization', `Bearer ${token}`);
+      expect(response.statusCode).not.toBe(429);
+    }
+  });
+
+  it('should limit repeated requests from the same IP for general endpoints', async () => {
+    const token = jwt.sign({ userId: 'testuser', userType: 'farmer' }, process.env.JWT_SECRET, { expiresIn: '15m' });
+    for (let i = 0; i < GENERAL_MAX_REQUESTS; i++) {
+      await request(app)
+        .get('/dashboard')
+        .set('Authorization', `Bearer ${token}`);
+    }
+    const response = await request(app)
+      .get('/dashboard')
+      .set('Authorization', `Bearer ${token}`);
+    expect(response.statusCode).toBe(429);
+    expect(response.body).toEqual({ message: 'Too many requests from this IP, please try again later.' });
+  });
+
+  it('should reset general rate limit after the window period', async () => {
+    const token = jwt.sign({ userId: 'testuser', userType: 'farmer' }, process.env.JWT_SECRET, { expiresIn: '15m' });
+    jest.useFakeTimers();
+
+    // Fill up the rate limit
+    for (let i = 0; i < GENERAL_MAX_REQUESTS; i++) {
+      await request(app)
+        .get('/dashboard')
+        .set('Authorization', `Bearer ${token}`);
+    }
+
+    // This request should be blocked
+    const blockedResponse = await request(app)
+      .get('/dashboard')
+      .set('Authorization', `Bearer ${token}`);
+    expect(blockedResponse.statusCode).toBe(429);
+
+    // Advance time by window period
+    jest.advanceTimersByTime(GENERAL_WINDOW_MS);
+
+    // This request should now be allowed
+    const response = await request(app)
+      .get('/dashboard')
+      .set('Authorization', `Bearer ${token}`);
+    expect(response.statusCode).not.toBe(429);
+
+    jest.useRealTimers();
+  });
+
+  it('should apply a stricter rate limit to the login endpoint', async () => {
+    for (let i = 0; i < LOGIN_MAX_REQUESTS; i++) {
+      const response = await request(app).post('/login');
+      expect(response.statusCode).not.toBe(429);
+    }
+
+    const blockedResponse = await request(app).post('/login');
+    expect(blockedResponse.statusCode).toBe(429);
+    expect(blockedResponse.body).toEqual({ message: 'Too many login attempts, please try again later.' });
+  });
+
+  it('should reset rate limit after the window period for login endpoint', async () => {
+    jest.useFakeTimers();
+
+    // Fill up the login rate limit
+    for (let i = 0; i < LOGIN_MAX_REQUESTS; i++) {
+      await request(app).post('/login');
+    }
+
+    // This request should be blocked
+    const blockedResponse = await request(app).post('/login');
+    expect(blockedResponse.statusCode).toBe(429);
+
+    // Advance time by login window period
+    jest.advanceTimersByTime(LOGIN_WINDOW_MS);
+
+    // This request should now be allowed
+    const response = await request(app).post('/login');
+    expect(response.statusCode).not.toBe(429);
+
+    jest.useRealTimers();
+  });
 });

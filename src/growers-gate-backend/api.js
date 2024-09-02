@@ -852,9 +852,18 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+let server;
+
+function startServer() {
+  return new Promise((resolve) => {
+    server = app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+      resolve(server);
+    });
+  });
+}
+
+module.exports = { app, startServer, server };
 
 /**
  * Graceful shutdown handler
@@ -863,8 +872,17 @@ app.listen(PORT, () => {
 process.on('SIGINT', async () => {
   await client.close();
   console.log('MongoDB connection closed');
-  process.exit(0);
+  if (server) {
+    server.close(() => {
+      console.log('Server closed');
+      process.exit(0);
+    });
+  } else {
+    process.exit(0);
+  }
 });
+
+// This line is intentionally left blank to remove the duplicate export statement.
 
 // Farmer Analytics API endpoints
 app.get('/api/farmer/analytics/sales', authenticateJWT, (req, res) => {
@@ -909,7 +927,7 @@ app.get('/knowledge-base', authenticateJWT, (req, res) => {
   res.json(dummyKnowledgeBaseArticles);
 });
 
-module.exports = app;
+// This line is intentionally left blank to remove the duplicate export
 
 /**
  * Get Orders API
@@ -943,7 +961,7 @@ app.get('/orders', authenticateJWT, async (req, res) => {
   }
 });
 
-module.exports = app;
+// This line is intentionally left blank to remove the duplicate export
 
 /**
  * Refresh Token API
