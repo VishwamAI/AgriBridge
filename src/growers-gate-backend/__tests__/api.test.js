@@ -37,7 +37,7 @@ beforeAll(async () => {
     console.error('Error stack:', error.stack);
     throw error;
   }
-});
+}, 10000); // Increased timeout to 10000ms
 
 afterAll(async () => {
   console.log('Cleaning up after tests...');

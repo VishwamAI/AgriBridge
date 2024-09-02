@@ -33,7 +33,7 @@ app.use(limiter);
 
 // MongoDB connection setup
 const uri = process.env.MONGODB_URI;
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+const client = new MongoClient(uri);
 
 let db;
 
@@ -41,13 +41,29 @@ let db;
  * Connects to the MongoDB database
  */
 async function connectToDatabase() {
-  try {
-    await client.connect();
-    console.log('Connected to MongoDB');
-    db = client.db('growers_gate');
-  } catch (error) {
-    console.error('Error connecting to MongoDB:', error);
-    process.exit(1);
+  const maxRetries = 5;
+  const retryDelay = 5000; // 5 seconds
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      await client.connect();
+      console.log('Connected to MongoDB successfully');
+      db = client.db('growers_gate');
+      return;
+    } catch (error) {
+      console.error(`Error connecting to MongoDB (Attempt ${attempt}/${maxRetries}):`, error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
+      console.error('Stack trace:', error.stack);
+
+      if (attempt === maxRetries) {
+        console.error('Max retries reached. Unable to connect to MongoDB.');
+        // Instead of exiting, we'll let the calling code handle the failure
+        throw new Error('Failed to connect to MongoDB after multiple attempts');
+      }
+
+      console.log(`Retrying in ${retryDelay / 1000} seconds...`);
+      await new Promise(resolve => setTimeout(resolve, retryDelay));
+    }
   }
 }
 
