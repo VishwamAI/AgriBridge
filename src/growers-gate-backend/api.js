@@ -13,11 +13,23 @@ const qrcode = require('qrcode');
 const cors = require('cors');
 const { MongoClient, ObjectId } = require('mongodb');
 const crypto = require('crypto');
+const { body, validationResult } = require('express-validator');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 require('dotenv').config();
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+app.use(helmet());
+
+// Implement rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50, // limit each IP to 50 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.'
+});
+app.use(limiter);
 
 // MongoDB connection setup
 const uri = process.env.MONGODB_URI;
@@ -50,17 +62,28 @@ connectToDatabase();
  */
 const authenticateJWT = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  if (authHeader) {
-    const token = authHeader.split(' ')[1];
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-      if (err) {
-        return res.sendStatus(403);
-      }
-      req.user = user;
-      next();
-    });
-  } else {
-    res.sendStatus(401);
+  if (!authHeader) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+
+  const token = authHeader.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({ message: 'Invalid token format' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Check if the token has expired
+    if (Date.now() >= decoded.exp * 1000) {
+      return res.status(401).json({ message: 'Token has expired' });
+    }
+
+    req.user = decoded;
+    next();
+  } catch (error) {
+    console.error('JWT verification error:', error);
+    return res.status(403).json({ message: 'Invalid token' });
   }
 };
 
@@ -73,32 +96,93 @@ const authenticateJWT = (req, res, next) => {
  * @param {string} password.body.required - User's password
  * @param {string} userType.body.required - User type (farmer, customer, or community)
  * @returns {Object} 201 - User registered successfully with JWT token and 2FA setup info
- * @returns {Object} 400 - Bad request (e.g., missing fields)
+ * @returns {Object} 400 - Bad request (e.g., missing fields, invalid input)
  * @returns {Object} 500 - Server error
  */
-app.post('/register', async (req, res) => {
+app.post('/register', [
+  body('firstName').trim().notEmpty().withMessage('First name is required')
+    .isLength({ max: 50 }).withMessage('First name must not exceed 50 characters')
+    .matches(/^[a-zA-Z\s-]+$/).withMessage('First name can only contain letters, spaces, and hyphens'),
+  body('lastName').trim().notEmpty().withMessage('Last name is required')
+    .isLength({ max: 50 }).withMessage('Last name must not exceed 50 characters')
+    .matches(/^[a-zA-Z\s-]+$/).withMessage('Last name can only contain letters, spaces, and hyphens'),
+  body('email').isEmail().normalizeEmail().withMessage('Valid email is required')
+    .custom(value => {
+      const allowedDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'example.com']; // Added 'example.com' for testing
+      const domain = value.split('@')[1];
+      if (!allowedDomains.includes(domain)) {
+        throw new Error('Email domain not allowed');
+      }
+      return true;
+    }),
+  body('password')
+    .isLength({ min: 12, max: 128 }).withMessage('Password must be between 12 and 128 characters long')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$/)
+    .withMessage('Password must include at least one lowercase letter, one uppercase letter, one number, and one special character')
+    .custom((value, { req }) => {
+      if (value.toLowerCase().includes(req.body.firstName.toLowerCase()) ||
+          value.toLowerCase().includes(req.body.lastName.toLowerCase())) {
+        throw new Error('Password must not contain your name');
+      }
+      return true;
+    }),
+  body('userType').isIn(['farmer', 'customer', 'community']).withMessage('Invalid user type')
+], async (req, res) => {
+  console.log('Registration endpoint called');
   try {
+    console.log('Registration attempt:', JSON.stringify(req.body, null, 2));
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      console.log('Validation errors:', JSON.stringify(errors.array(), null, 2));
+      return res.status(400).json({ errors: errors.array() });
+    }
+    console.log('Input validation passed');
+
     const { firstName, lastName, email, password, userType } = req.body;
-
-    // Validate input
-    if (!firstName || !lastName || !email || !password || !userType) {
-      return res.status(400).json({ message: 'All fields are required' });
-    }
-
-    // Validate userType
-    const validUserTypes = ['farmer', 'customer', 'community'];
-    if (!validUserTypes.includes(userType)) {
-      return res.status(400).json({ message: 'Invalid user type' });
-    }
+    console.log('Parsed registration data:', { firstName, lastName, email, userType });
 
     // Check if user already exists
+    console.log('Checking if user already exists');
+    console.log('Executing query:', JSON.stringify({ email }));
     const existingUser = await db.collection('users').findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
-    }
+    console.log('Query result:', existingUser ? 'User found' : 'User not found');
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const twoFactorSecret = speakeasy.generateSecret();
+    if (existingUser) {
+      console.log('User already exists:', email);
+      console.log('Existing user details:', JSON.stringify(existingUser, null, 2));
+      return res.status(400).json({ message: 'Email address is already in use' });
+    }
+    console.log('User does not exist, proceeding with registration');
+
+    // Check for common passwords
+    const commonPasswords = ['password', '123456', 'qwerty', 'letmein', 'admin', 'welcome'];
+    if (commonPasswords.includes(password.toLowerCase())) {
+      console.log('Common password detected:', password);
+      return res.status(400).json({ message: 'Password is too common. Please choose a stronger password.' });
+    }
+    console.log('Password passed common password check');
+
+    // Check password against leaked password database (example using haveibeenpwned API)
+    const sha1Password = crypto.createHash('sha1').update(password).digest('hex').toUpperCase();
+    const prefix = sha1Password.slice(0, 5);
+    const suffix = sha1Password.slice(5);
+    const response = await axios.get(`https://api.pwnedpasswords.com/range/${prefix}`);
+    const leakedPasswords = response.data.split('\n');
+    const leakedPassword = leakedPasswords.find(p => p.split(':')[0] === suffix);
+    if (leakedPassword) {
+      console.log('Leaked password detected');
+      return res.status(400).json({ message: 'This password has been found in a data breach. Please choose a different password.' });
+    }
+    console.log('Password not found in leaked password database');
+
+    console.log('Hashing password');
+    const hashedPassword = await bcrypt.hash(password, 12);
+    console.log('Password hashed successfully');
+
+    console.log('Generating two-factor secret');
+    const twoFactorSecret = speakeasy.generateSecret({ length: 32 });
+    console.log('Two-factor secret generated:', twoFactorSecret.base32);
+
     const user = {
       firstName,
       lastName,
@@ -106,32 +190,67 @@ app.post('/register', async (req, res) => {
       password: hashedPassword,
       userType,
       twoFactorSecret: twoFactorSecret.base32,
-      twoFactorEnabled: false
+      twoFactorEnabled: false,
+      createdAt: new Date(),
+      lastLogin: null,
+      failedLoginAttempts: 0,
+      accountLocked: false,
+      lastPasswordChange: new Date()
     };
 
-    const result = await db.collection('users').insertOne(user);
-
-    // Log user ID information
-    console.log('User registered with ID:', result.insertedId);
-    console.log('User ID type:', typeof result.insertedId);
-    console.log('User ID toString:', result.insertedId.toString());
+    console.log('Attempting to insert user into database');
+    let result;
+    try {
+      result = await db.collection('users').insertOne(user);
+      console.log('User inserted. InsertedId:', result.insertedId, 'Acknowledged:', result.acknowledged);
+    } catch (dbError) {
+      console.error('Database insertion error:', dbError);
+      throw dbError;
+    }
 
     // Generate QR code for 2FA setup
+    console.log('Generating OTP Auth URL');
     const otpauthUrl = speakeasy.otpauthURL({
       secret: twoFactorSecret.ascii,
-      label: email,
-      issuer: 'Growers Gate'
+      label: encodeURIComponent(`Growers Gate:${email}`),
+      issuer: 'Growers Gate',
+      algorithm: 'sha512'
     });
-    const qrCodeUrl = await qrcode.toDataURL(otpauthUrl);
+    console.log('OTP Auth URL generated:', otpauthUrl);
+
+    console.log('Generating QR Code URL');
+    let qrCodeUrl;
+    try {
+      qrCodeUrl = await qrcode.toDataURL(otpauthUrl);
+      console.log('QR Code URL generated. Length:', qrCodeUrl.length);
+    } catch (qrError) {
+      console.error('QR Code generation error:', qrError);
+      throw qrError;
+    }
 
     // Generate JWT token
-    const token = jwt.sign(
-      { userId: result.insertedId.toString(), email: user.email, userType: user.userType },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
-    );
+    console.log('Generating JWT token');
+    let token;
+    try {
+      token = jwt.sign(
+        {
+          userId: result.insertedId.toString(),
+          email: user.email,
+          userType: user.userType
+        },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: '15m',
+          algorithm: 'HS256'
+        }
+      );
+      console.log('JWT token generated. Length:', token.length);
+    } catch (jwtError) {
+      console.error('JWT generation error:', jwtError);
+      throw jwtError;
+    }
 
-    res.status(201).json({
+    const response = {
       message: 'User registered successfully',
       userId: result.insertedId.toString(),
       token,
@@ -140,10 +259,54 @@ app.post('/register', async (req, res) => {
         qrCodeUrl,
         secret: twoFactorSecret.base32
       }
+    };
+    console.log('Registration successful. Response details:', {
+      userId: response.userId,
+      userType: response.userType,
+      tokenLength: response.token.length,
+      qrCodeUrlLength: response.twoFactorSetup.qrCodeUrl.length,
+      secretLength: response.twoFactorSetup.secret.length
     });
+
+    // Log the registration event
+    try {
+      await db.collection('audit_logs').insertOne({
+        event: 'user_registration',
+        userId: result.insertedId,
+        timestamp: new Date(),
+        details: { email, userType },
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent')
+      });
+      console.log('Audit log entry created for user registration');
+    } catch (auditLogError) {
+      console.error('Error creating audit log entry:', auditLogError);
+      // Don't throw here, as we still want to return the successful registration response
+    }
+
+    res.status(201).json(response);
   } catch (error) {
     console.error('Error registering user:', error);
-    res.status(500).json({ message: 'Error registering user' });
+    console.error('Error stack:', error.stack);
+    if (error.name === 'MongoError' && error.code === 11000) {
+      console.log('Duplicate key error (email already in use)');
+      return res.status(400).json({ message: 'Email address is already in use' });
+    }
+    // Log the error
+    try {
+      await db.collection('error_logs').insertOne({
+        error: error.message,
+        stack: error.stack,
+        timestamp: new Date(),
+        endpoint: '/register',
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent')
+      });
+      console.log('Error log entry created');
+    } catch (logError) {
+      console.error('Error creating error log entry:', logError);
+    }
+    res.status(500).json({ message: 'An unexpected error occurred during registration. Please try again later.' });
   }
 });
 
@@ -156,54 +319,108 @@ app.post('/register', async (req, res) => {
  * @returns {Object} 200 - Login successful, returns JWT token and dashboard route
  * @returns {Object} 202 - Login successful, 2FA required
  * @returns {Object} 401 - Invalid credentials
+ * @returns {Object} 429 - Too many login attempts
  * @returns {Object} 500 - Server error
  */
-app.post('/login', async (req, res) => {
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // limit each IP to 5 login attempts per windowMs
+  message: 'Too many login attempts, please try again later.'
+});
+
+app.post('/login', loginLimiter, async (req, res) => {
   try {
     const { email, password, twoFactorToken } = req.body;
     const user = await db.collection('users').findOne({ email });
-    if (user && await bcrypt.compare(password, user.password)) {
-      if (user.twoFactorEnabled) {
-        if (twoFactorToken) {
-          const verified = speakeasy.totp.verify({
-            secret: user.twoFactorSecret,
-            encoding: 'base32',
-            token: twoFactorToken
-          });
-          if (!verified) {
-            return res.status(401).json({ message: 'Invalid 2FA token' });
-          }
-        } else {
-          return res.status(202).json({ message: '2FA required', twoFactorRequired: true });
-        }
-      }
-      const token = jwt.sign({ userId: user._id, email: user.email, userType: user.userType }, process.env.JWT_SECRET, { expiresIn: '1h' });
-      let dashboardRoute;
-      switch (user.userType) {
-        case 'farmer':
-          dashboardRoute = '/farmer-dashboard';
-          break;
-        case 'customer':
-          dashboardRoute = '/user-dashboard';
-          break;
-        case 'admin':
-          dashboardRoute = '/admin-dashboard';
-          break;
-        case 'community':
-          dashboardRoute = '/community-dashboard';
-          break;
-        default:
-          dashboardRoute = '/dashboard';
-      }
-      res.json({ token, message: 'Login successful', userType: user.userType, dashboardRoute });
-    } else {
-      res.status(401).json({ message: 'Invalid credentials' });
+
+    if (!user) {
+      await logLoginAttempt(email, false, 'User not found');
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
+
+    if (user.accountLocked) {
+      return res.status(401).json({ message: 'Account is locked. Please contact support.' });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      await handleFailedLogin(user);
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    if (user.twoFactorEnabled) {
+      if (twoFactorToken) {
+        const verified = speakeasy.totp.verify({
+          secret: user.twoFactorSecret,
+          encoding: 'base32',
+          token: twoFactorToken,
+          window: 1 // Allow 30 seconds of time drift
+        });
+        if (!verified) {
+          await logLoginAttempt(email, false, 'Invalid 2FA token');
+          return res.status(401).json({ message: 'Invalid 2FA token' });
+        }
+      } else {
+        return res.status(202).json({ message: '2FA required', twoFactorRequired: true });
+      }
+    }
+
+    const token = jwt.sign(
+      { userId: user._id, email: user.email, userType: user.userType },
+      process.env.JWT_SECRET,
+      { expiresIn: '15m', algorithm: 'HS256' }
+    );
+
+    const dashboardRoute = getDashboardRoute(user.userType);
+
+    await resetLoginAttempts(user);
+    await logLoginAttempt(email, true, 'Login successful');
+
+    res.json({ token, message: 'Login successful', userType: user.userType, dashboardRoute });
   } catch (error) {
     console.error('Error logging in:', error);
-    res.status(500).json({ message: 'Error logging in' });
+    res.status(500).json({ message: 'An error occurred during login. Please try again later.' });
   }
 });
+
+async function handleFailedLogin(user) {
+  user.failedLoginAttempts += 1;
+  if (user.failedLoginAttempts >= 5) {
+    user.accountLocked = true;
+  }
+  await db.collection('users').updateOne(
+    { _id: user._id },
+    { $set: { failedLoginAttempts: user.failedLoginAttempts, accountLocked: user.accountLocked } }
+  );
+  await logLoginAttempt(user.email, false, 'Invalid password');
+}
+
+async function resetLoginAttempts(user) {
+  await db.collection('users').updateOne(
+    { _id: user._id },
+    { $set: { failedLoginAttempts: 0, lastLogin: new Date() } }
+  );
+}
+
+async function logLoginAttempt(email, success, reason) {
+  await db.collection('login_logs').insertOne({
+    email,
+    success,
+    reason,
+    timestamp: new Date(),
+    ipAddress: req.ip
+  });
+}
+
+function getDashboardRoute(userType) {
+  const routes = {
+    farmer: '/farmer-dashboard',
+    customer: '/user-dashboard',
+    admin: '/admin-dashboard',
+    community: '/community-dashboard'
+  };
+  return routes[userType] || '/dashboard';
+}
 
 /**
  * Two-Factor Authentication Verification API
@@ -631,4 +848,73 @@ app.get('/rider/payments', authenticateJWT, (req, res) => {
   res.json(dummyPaymentData);
 });
 
+app.get('/knowledge-base', authenticateJWT, (req, res) => {
+  const dummyKnowledgeBaseArticles = [
+    { id: '1', title: 'How to Use the Rider App', content: 'Step-by-step guide on using the Rider application...' },
+    { id: '2', title: 'Best Practices for Deliveries', content: 'Tips and tricks for efficient and safe deliveries...' },
+    { id: '3', title: 'Understanding Your Payments', content: 'Detailed explanation of the payment structure and cycles...' }
+  ];
+  res.json(dummyKnowledgeBaseArticles);
+});
+
 module.exports = app;
+
+/**
+ * Get Orders API
+ * @route GET /orders
+ * @security JWT
+ * @returns {Object} 200 - List of orders
+ * @returns {Object} 401 - Unauthorized
+ * @returns {Object} 500 - Server error
+ */
+app.get('/orders', authenticateJWT, async (req, res) => {
+  console.log(`[${new Date().toISOString()}] GET /orders - Request received`);
+  try {
+    const { userId, userType } = req.user;
+    let query = {};
+
+    // Filter orders based on user type
+    if (userType === 'farmer') {
+      query.farmerId = userId;
+    } else if (userType === 'customer') {
+      query.customerId = userId;
+    } else if (userType === 'rider') {
+      query.riderId = userId;
+    }
+
+    const orders = await db.collection('orders').find(query).toArray();
+    console.log(`[${new Date().toISOString()}] GET /orders - Retrieved ${orders.length} orders`);
+    res.json(orders);
+  } catch (error) {
+    console.error(`[${new Date().toISOString()}] GET /orders - Error fetching orders:`, error);
+    res.status(500).json({ message: 'Error fetching orders' });
+  }
+});
+
+module.exports = app;
+
+/**
+ * Refresh Token API
+ * @route POST /refresh-token
+ * @security JWT
+ * @returns {Object} 200 - New JWT token
+ * @returns {Object} 401 - Unauthorized
+ * @returns {Object} 500 - Server error
+ */
+app.post('/refresh-token', authenticateJWT, async (req, res) => {
+  try {
+    const { userId, email, userType } = req.user;
+
+    // Generate a new token
+    const newToken = jwt.sign(
+      { userId, email, userType },
+      process.env.JWT_SECRET,
+      { expiresIn: '15m', algorithm: 'HS256' }
+    );
+
+    res.json({ token: newToken });
+  } catch (error) {
+    console.error('Error refreshing token:', error);
+    res.status(500).json({ message: 'Error refreshing token' });
+  }
+});
