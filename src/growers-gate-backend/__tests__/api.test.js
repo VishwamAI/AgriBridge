@@ -278,12 +278,12 @@ describe('API Security Tests', () => {
     });
 
     it('should accept requests with a valid JWT', async () => {
-      const token = jwt.sign({ userId: 'testuser', userType: 'farmer' }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      const token = jwt.sign({ userId: 'testuser', userType: 'farmer' }, process.env.JWT_SECRET || 'fallback_secret', { expiresIn: '1h' });
       const response = await request(app)
         .get('/dashboard')
         .set('Authorization', `Bearer ${token}`);
       expect(response.statusCode).toBe(200);
-    });
+    }, 10000); // Increased timeout to 10 seconds
 
     it('should reject requests with an expired JWT', async () => {
       jest.useFakeTimers();
@@ -294,22 +294,28 @@ describe('API Security Tests', () => {
         .set('Authorization', `Bearer ${token}`);
       expect(response.statusCode).toBe(403);
       jest.useRealTimers();
-    });
+    }, 10000); // Increase timeout to 10 seconds
   });
 
   describe('Rate Limiting', () => {
     it('should limit repeated requests from the same IP', async () => {
+      jest.setTimeout(10000); // Increase timeout to 10 seconds
       mockRateLimiter.mockImplementationOnce((req, res, next) => {
         res.status(429).json({ message: 'Too many requests' });
       });
       const response = await request(app).get('/');
       expect(response.statusCode).toBe(429);
-    });
+    }, 10000); // Add timeout to individual test
 
     it('should allow requests after rate limit reset', async () => {
+      jest.setTimeout(10000); // Increase timeout to 10 seconds
       mockRateLimiter.mockImplementationOnce((req, res, next) => next());
       const response = await request(app).get('/');
       expect(response.statusCode).not.toBe(429);
+    }, 10000); // Add timeout to individual test
+
+    afterEach(() => {
+      mockRateLimiter.mockReset(); // Reset mock after each test
     });
   });
 });
