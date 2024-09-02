@@ -31,6 +31,9 @@ jobs:
         cd src/growers-gate-frontend
         npm ci
     - name: Run linter
+      env:
+        NODE_ENV: production
+        BABEL_ENV: production
       run: |
         cd src/growers-gate-frontend
         npm run lint
@@ -64,6 +67,9 @@ jobs:
         cd src/growers-gate-frontend
         npm ci
     - name: Run frontend tests
+      env:
+        NODE_ENV: test
+        BABEL_ENV: test
       run: |
         cd src/growers-gate-frontend
         npm test -- --coverage
