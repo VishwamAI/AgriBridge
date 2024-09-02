@@ -243,7 +243,7 @@ const CartManagement = () => {
 };
 
 const CheckoutProcess = () => {
-  const [checkoutSteps, setCheckoutSteps] = useState(['cart', 'shipping', 'payment', 'confirmation']);
+  const checkoutSteps = ['cart', 'shipping', 'payment', 'confirmation'];
   const [currentStep, setCurrentStep] = useState('cart');
 
   const handleNextStep = () => {
