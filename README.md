@@ -2,6 +2,7 @@
 
 Growers Gate is a comprehensive web application platform designed to connect farmers directly with consumers, facilitating the sale of vegetables and other agricultural products with home delivery options. Our mission is to streamline the farm-to-table process, ensuring fresh produce delivery while supporting local growers.
 
+
 ## Table of Contents
 - [Project Overview](#project-overview)
 - [Features](#features)
